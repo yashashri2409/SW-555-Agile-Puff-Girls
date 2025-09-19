@@ -13,19 +13,19 @@ db = SQLAlchemy(app)
 def home():
     return render_template('home/index.html', page_id='home')
 
-@app.route('/habit-tracker')
+@app.route('/habit-tracker', methods=['GET', 'POST'])
 def habit_tracker():
     return render_template('apps/habit_tracker/index.html', page_id='habit-tracker')
 
-@app.route('/mood-journal')
+@app.route('/mood-journal', methods=['GET', 'POST'])
 def mood_journal():
     return render_template('apps/mood_journal/index.html', page_id='mood-journal')
 
-@app.route('/expense-splitter')
+@app.route('/expense-splitter', methods=['GET', 'POST'])
 def expense_splitter():
     return render_template('apps/expense_splitter/index.html', page_id='expense-splitter')
 
-@app.route('/recipe-assistant')
+@app.route('/recipe-assistant', methods=['GET', 'POST'])
 def recipe_assistant():
     return render_template('apps/recipe_assistant/index.html', page_id='recipe-assistant')
 
