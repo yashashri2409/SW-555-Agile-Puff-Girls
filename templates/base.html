@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Multi-App Platform{% endblock %}</title>
+    <title>{% block title %}Student Starter Pack{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
+<body class="page {{ page_id | default('page-default') }}">
     <nav>
         <div class="nav-container">
-            <h1><a href="/">Multi-App Platform</a></h1>
+            <div class="brand">
+                <h1><a href="/">Student Starter Pack</a></h1>
+                <p class="tagline">Choose the single app you need, trim the rest.</p>
+            </div>
             <ul>
                 <li><a href="/habit-tracker">Habit Tracker</a></li>
                 <li><a href="/mood-journal">Mood Journal</a></li>
@@ -26,7 +29,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2024 Multi-App Platform - SSW555 Example Project</p>
+        <p>&copy; 2024 Student Starter Pack — SSW555 Example Project</p>
     </footer>
 </body>
 </html>

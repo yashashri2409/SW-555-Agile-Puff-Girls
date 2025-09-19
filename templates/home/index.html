@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Starter Pack Overview • Student Starter Pack{% endblock %}
+
+{% block content %}
+<div class="hero home-hero">
+    <h2>Your SSW555 Starter Pack</h2>
+    <p>Pick one standalone app to launch your project. Each module already lives in its own folder, so you can remove the rest without breaking anything.</p>
+    <p class="hero-reminder"><strong>Reminder:</strong> This isn’t a bundled multi-function platform. Choose one module, plug it into your work, then delete the extras from <code>templates/apps/</code> and the matching routes in <code>app.py</code>.</p>
+</div>
+
+<div class="starter-guide">
+    <h3>How to use this pack</h3>
+    <div class="guide-grid">
+        <div class="guide-card">
+            <span class="step-number">1</span>
+            <h4>Review the modules</h4>
+            <p>Open each demo route or skim the source folders to see how habits, moods, expenses, and recipes are scaffolded.</p>
+        </div>
+        <div class="guide-card">
+            <span class="step-number">2</span>
+            <h4>Pick your starting point</h4>
+            <p>Select the app that best matches your assignment goals. Remove the other directories so your repo stays focused.</p>
+        </div>
+        <div class="guide-card">
+            <span class="step-number">3</span>
+            <h4>Extend and customize</h4>
+            <p>Adapt models, templates, and styling to meet requirements. Each module is isolated so changes stay contained.</p>
+        </div>
+    </div>
+</div>
+
+<div class="app-grid">
+    <div class="app-card habit-card">
+        <h3>Habit Tracker</h3>
+        <p>Focus on routines with a clean streak tracker. Great for experiments around behavior or accountability journals.</p>
+        <a href="/habit-tracker" class="btn">Open module</a>
+    </div>
+
+    <div class="app-card mood-card">
+        <h3>Mood Journal</h3>
+        <p>Capture daily reflections and patterns. Ideal for wellbeing projects that need sentiment tracking basics.</p>
+        <a href="/mood-journal" class="btn">Open module</a>
+    </div>
+
+    <div class="app-card expense-card">
+        <h3>Expense Splitter</h3>
+        <p>Spin up quick cost-sharing demos. Perfect for group assignments where transparent math matters.</p>
+        <a href="/expense-splitter" class="btn">Open module</a>
+    </div>
+
+    <div class="app-card recipe-card">
+        <h3>Recipe Assistant</h3>
+        <p>Showcase structured content storage. Useful for knowledge bases, cooking clubs, or research collections.</p>
+        <a href="/recipe-assistant" class="btn">Open module</a>
+    </div>
+</div>
+
+<div class="project-info">
+    <h3>Why everything is split up</h3>
+    <p>Each app ships in its own folder (<code>templates/apps/&lt;app-name&gt;</code>) with shared layout assets kept in <code>templates/base.html</code> and <code>static/css</code>.</p>
+    <p>Removing a module is as simple as deleting its template folder and any related database models or routes. Nothing else depends on it.</p>
+    <p>Use this structure as a teaching tool or a lightweight launchpad for SSW555 deliverables.</p>
+</div>
+{% endblock %}

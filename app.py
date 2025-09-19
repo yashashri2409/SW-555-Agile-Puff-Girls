@@ -11,23 +11,23 @@ db = SQLAlchemy(app)
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('home/index.html', page_id='home')
 
 @app.route('/habit-tracker')
 def habit_tracker():
-    return render_template('habit_tracker.html')
+    return render_template('apps/habit_tracker/index.html', page_id='habit-tracker')
 
 @app.route('/mood-journal')
 def mood_journal():
-    return render_template('mood_journal.html')
+    return render_template('apps/mood_journal/index.html', page_id='mood-journal')
 
 @app.route('/expense-splitter')
 def expense_splitter():
-    return render_template('expense_splitter.html')
+    return render_template('apps/expense_splitter/index.html', page_id='expense-splitter')
 
 @app.route('/recipe-assistant')
 def recipe_assistant():
-    return render_template('recipe_assistant.html')
+    return render_template('apps/recipe_assistant/index.html', page_id='recipe-assistant')
 
 def init_db():
     with app.app_context():
