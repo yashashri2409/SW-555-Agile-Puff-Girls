@@ -53,8 +53,6 @@ This project provides a foundation for four expandable applications:
 
 This project is designed to be simple and expandable. Each application module is independent and can be enhanced with additional features as needed.
 
-For development guidance, see [CLAUDE.md](CLAUDE.md).
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
