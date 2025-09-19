@@ -31,7 +31,23 @@
 
     <div class="list-section">
         <h3>Your Habits</h3>
-        <p class="placeholder-text">Log a few habits to see streaks and progress summaries populate here.</p>
+        {% if habits %}
+            <ul class="entry-list habit-list">
+                {% for habit in habits %}
+                <li>
+                    <div class="entry-header">
+                        <span class="entry-title">{{ habit.name }}</span>
+                        <span class="entry-meta">Added {{ habit.created_at.strftime('%b %d, %Y') }}</span>
+                    </div>
+                    {% if habit.description %}
+                        <p>{{ habit.description }}</p>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="placeholder-text">Log a few habits to see streaks and progress summaries populate here.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

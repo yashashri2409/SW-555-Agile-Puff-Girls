@@ -39,7 +39,39 @@
 
     <div class="list-section">
         <h3>Your Recipes</h3>
-        <p class="placeholder-text">Collect your favorite dishes here and build a shareable cookbook.</p>
+        {% if recipes %}
+            <ul class="entry-list recipe-list">
+                {% for recipe in recipes %}
+                <li>
+                    <div class="entry-header">
+                        <span class="entry-title">{{ recipe.name }}</span>
+                        <span class="entry-meta">Saved {{ recipe.created_at.strftime('%b %d, %Y') }}</span>
+                    </div>
+                    <div class="recipe-body">
+                        {% if recipe.prep_time is not none %}
+                            <p class="recipe-meta">Prep time: {{ recipe.prep_time }} minutes</p>
+                        {% endif %}
+                        <div class="recipe-columns">
+                            <div>
+                                <h4>Ingredients</h4>
+                                <ul class="inline-list">
+                                    {% for item in recipe.ingredients.splitlines() if item.strip() %}
+                                    <li>{{ item }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4>Instructions</h4>
+                                <p>{{ recipe.instructions }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="placeholder-text">Collect your favorite dishes here and build a shareable cookbook.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -339,6 +339,109 @@ main {
     line-height: 1.5;
 }
 
+.entry-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.entry-list li {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    border-left: 4px solid var(--accent, #3498db);
+}
+
+.entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.entry-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--header-text, #2c3e50);
+}
+
+.entry-meta {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+}
+
+.subtle {
+    color: #8f9ba3;
+}
+
+.mood-tag {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    text-transform: capitalize;
+    color: white;
+}
+
+.mood-excellent { background: #27ae60; }
+.mood-good { background: #2ecc71; }
+.mood-neutral { background: #95a5a6; }
+.mood-bad { background: #e67e22; }
+.mood-terrible { background: #c0392b; }
+
+.expense-details,
+.recipe-meta {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    color: #2c3e50;
+}
+
+.expense-details .amount {
+    font-weight: 700;
+    color: var(--accent, #16a085);
+}
+
+.expense-details .share {
+    font-weight: 500;
+    color: #34495e;
+}
+
+.recipe-body {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.recipe-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.recipe-columns h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--header-text, #2c3e50);
+}
+
+.inline-list {
+    list-style: disc inside;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    color: #2c3e50;
+}
+
+.inline-list li {
+    padding-left: 0.25rem;
+}
+
 .content-section {
     display: grid;
     grid-template-columns: 1fr 1fr;

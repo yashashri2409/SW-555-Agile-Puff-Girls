@@ -38,7 +38,25 @@
 
     <div class="list-section">
         <h3>Recent Entries</h3>
-        <p class="placeholder-text">Each saved entry will build a timeline of how your days are trending.</p>
+        {% if entries %}
+            <ul class="entry-list mood-list">
+                {% for entry in entries %}
+                <li>
+                    <div class="entry-header">
+                        <span class="entry-title mood-tag mood-{{ entry.mood }}">{{ entry.mood|title }}</span>
+                        <span class="entry-meta">Logged {{ entry.created_at.strftime('%b %d, %Y %I:%M %p') }}</span>
+                    </div>
+                    {% if entry.notes %}
+                        <p>{{ entry.notes }}</p>
+                    {% else %}
+                        <p class="placeholder-text subtle">No notes added.</p>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="placeholder-text">Each saved entry will build a timeline of how your days are trending.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
