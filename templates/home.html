@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Multi-App Platform{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h2>Welcome to the Multi-App Platform</h2>
+    <p>A versatile starting point for multiple productivity applications</p>
+</div>
+
+<div class="app-grid">
+    <div class="app-card">
+        <h3>Habit Tracker</h3>
+        <p>Build and maintain positive habits by tracking your daily progress. Set goals, monitor streaks, and visualize your consistency over time.</p>
+        <a href="/habit-tracker" class="btn">Get Started</a>
+    </div>
+
+    <div class="app-card">
+        <h3>Mood Journal</h3>
+        <p>Record your daily emotions and reflections. Track patterns in your mood over time and gain insights into your emotional well-being.</p>
+        <a href="/mood-journal" class="btn">Get Started</a>
+    </div>
+
+    <div class="app-card">
+        <h3>Expense Splitter</h3>
+        <p>Simplify group expenses and split bills fairly. Perfect for roommates, trips, or any shared expenses with friends and family.</p>
+        <a href="/expense-splitter" class="btn">Get Started</a>
+    </div>
+
+    <div class="app-card">
+        <h3>Recipe Assistant</h3>
+        <p>Store, organize, and discover recipes. Keep track of your favorite meals and plan your cooking adventures.</p>
+        <a href="/recipe-assistant" class="btn">Get Started</a>
+    </div>
+</div>
+
+<div class="project-info">
+    <h3>About This Project</h3>
+    <p>This is a demonstration project built with Flask and SQLite, designed to be easily expandable. Each application module is independent and can be enhanced with additional features as needed.</p>
+    <p>Built for SSW555 - Agile Methods for Software Development</p>
+</div>
+{% endblock %}

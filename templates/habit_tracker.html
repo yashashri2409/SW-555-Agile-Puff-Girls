@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Habit Tracker - Multi-App Platform{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Habit Tracker</h2>
+    <p>Build better habits, one day at a time</p>
+</div>
+
+<div class="content-section">
+    <div class="form-section">
+        <h3>Add New Habit</h3>
+        <form method="POST" action="/habit-tracker">
+            <div class="form-group">
+                <label for="habit-name">Habit Name:</label>
+                <input type="text" id="habit-name" name="name" placeholder="e.g., Morning Exercise" required>
+            </div>
+            <div class="form-group">
+                <label for="habit-description">Description:</label>
+                <textarea id="habit-description" name="description" rows="3" placeholder="Optional description"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Habit</button>
+        </form>
+    </div>
+
+    <div class="list-section">
+        <h3>Your Habits</h3>
+        <p class="placeholder-text">Your habits will appear here once you start adding them.</p>
+    </div>
+</div>
+{% endblock %}

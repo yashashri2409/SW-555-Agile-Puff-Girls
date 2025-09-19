@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Multi-App Platform{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <h1><a href="/">Multi-App Platform</a></h1>
+            <ul>
+                <li><a href="/habit-tracker">Habit Tracker</a></li>
+                <li><a href="/mood-journal">Mood Journal</a></li>
+                <li><a href="/expense-splitter">Expense Splitter</a></li>
+                <li><a href="/recipe-assistant">Recipe Assistant</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Multi-App Platform - SSW555 Example Project</p>
+    </footer>
+</body>
+</html>

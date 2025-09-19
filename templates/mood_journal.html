@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Mood Journal - Multi-App Platform{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Mood Journal</h2>
+    <p>Track your emotions and reflect on your day</p>
+</div>
+
+<div class="content-section">
+    <div class="form-section">
+        <h3>How are you feeling today?</h3>
+        <form method="POST" action="/mood-journal">
+            <div class="form-group">
+                <label for="mood">Select Your Mood:</label>
+                <select id="mood" name="mood" required>
+                    <option value="">Choose...</option>
+                    <option value="excellent">Excellent</option>
+                    <option value="good">Good</option>
+                    <option value="neutral">Neutral</option>
+                    <option value="bad">Bad</option>
+                    <option value="terrible">Terrible</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="notes">Notes (Optional):</label>
+                <textarea id="notes" name="notes" rows="4" placeholder="What's on your mind?"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Entry</button>
+        </form>
+    </div>
+
+    <div class="list-section">
+        <h3>Recent Entries</h3>
+        <p class="placeholder-text">Your mood entries will appear here once you start journaling.</p>
+    </div>
+</div>
+{% endblock %}
