@@ -4,50 +4,98 @@
 
 {% block content %}
 <div class="page-header">
-    <h2>Habit Tracker</h2>
+    <h2>🌱 Habit Tracker</h2>
     <p>Build better habits, one day at a time</p>
 </div>
 
 <div class="module-note">
-    <h3>Use it solo</h3>
-    <p>This tracker ships as a self-contained module. Keep it for focus, or delete the other app folders if habits are all you need.</p>
+    <h3>Zen Mode</h3>
+    <p>This minimalist tracker focuses on consistency and progress. Track your daily habits with a clean, distraction-free interface designed for focus and mindfulness.</p>
 </div>
 
 <div class="content-section">
     <div class="form-section">
-        <h3>Add New Habit</h3>
+        <h3>🌿 Plant a New Habit</h3>
         <form method="POST" action="/habit-tracker">
             <div class="form-group">
-                <label for="habit-name">Habit Name:</label>
-                <input type="text" id="habit-name" name="name" placeholder="e.g., Morning Exercise" required>
+                <label for="habit-name">Habit Name</label>
+                <input type="text" id="habit-name" name="name" placeholder="e.g., Morning Meditation, Daily Reading..." required>
             </div>
             <div class="form-group">
-                <label for="habit-description">Description:</label>
-                <textarea id="habit-description" name="description" rows="3" placeholder="Optional description"></textarea>
+                <label for="habit-description">Intention</label>
+                <textarea id="habit-description" name="description" rows="3" placeholder="Why is this habit important to you?"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Add Habit</button>
+            <button type="submit" class="btn btn-primary">✓ Start Habit</button>
         </form>
     </div>
 
     <div class="list-section">
-        <h3>Your Habits</h3>
+        <h3>📊 Your Progress</h3>
         {% if habits %}
             <ul class="entry-list habit-list">
                 {% for habit in habits %}
-                <li>
+                <li class="habit-item">
                     <div class="entry-header">
-                        <span class="entry-title">{{ habit.name }}</span>
-                        <span class="entry-meta">Added {{ habit.created_at.strftime('%b %d, %Y') }}</span>
+                        <span class="entry-title">✓ {{ habit.name }}</span>
+                        <span class="entry-meta">Since {{ habit.created_at.strftime('%b %d, %Y') }}</span>
                     </div>
                     {% if habit.description %}
-                        <p>{{ habit.description }}</p>
+                        <p class="habit-intention">{{ habit.description }}</p>
                     {% endif %}
+                    <div class="habit-streak">
+                        <span class="streak-badge">🔥 0 day streak</span>
+                        <span class="completion-rate">0% this week</span>
+                    </div>
                 </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p class="placeholder-text">Log a few habits to see streaks and progress summaries populate here.</p>
+            <p class="placeholder-text">🌱 Plant your first habit seed and watch it grow into a consistent routine.</p>
         {% endif %}
     </div>
 </div>
+
+<style>
+.habit-item {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.habit-item:hover {
+    transform: translateX(10px);
+}
+
+.habit-intention {
+    color: #059669;
+    font-style: italic;
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid #10b981;
+}
+
+.habit-streak {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.streak-badge {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.completion-rate {
+    color: #10b981;
+    font-weight: 500;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+}
+</style>
 {% endblock %}

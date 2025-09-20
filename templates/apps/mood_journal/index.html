@@ -4,59 +4,196 @@
 
 {% block content %}
 <div class="page-header">
-    <h2>Mood Journal</h2>
-    <p>Track your emotions and reflect on your day</p>
+    <h2>☁️ Mood Journal</h2>
+    <p>Your emotional landscape, beautifully tracked</p>
 </div>
 
 <div class="module-note">
-    <h3>Stand-alone reflections</h3>
-    <p>Drop this mood log into any coursework or personal project. Remove the other app folders to stay focused on emotional insights only.</p>
+    <h3>Dreamy Reflections</h3>
+    <p>A soft, calming space for emotional awareness and self-reflection. Track your moods with a gentle, supportive interface that celebrates all feelings.</p>
 </div>
 
 <div class="content-section">
-    <div class="form-section">
-        <h3>How are you feeling today?</h3>
+    <div class="form-section mood-form">
+        <h3>✨ How's Your Inner Weather?</h3>
         <form method="POST" action="/mood-journal">
-            <div class="form-group">
-                <label for="mood">Select Your Mood:</label>
-                <select id="mood" name="mood" required>
-                    <option value="">Choose...</option>
-                    <option value="excellent">Excellent</option>
-                    <option value="good">Good</option>
-                    <option value="neutral">Neutral</option>
-                    <option value="bad">Bad</option>
-                    <option value="terrible">Terrible</option>
-                </select>
+            <div class="mood-selector">
+                <label for="mood">Current Mood</label>
+                <div class="mood-buttons">
+                    <input type="radio" id="mood-excellent" name="mood" value="excellent" required>
+                    <label for="mood-excellent" class="mood-btn">
+                        <span class="mood-emoji">🌟</span>
+                        <span>Excellent</span>
+                    </label>
+
+                    <input type="radio" id="mood-good" name="mood" value="good">
+                    <label for="mood-good" class="mood-btn">
+                        <span class="mood-emoji">😊</span>
+                        <span>Good</span>
+                    </label>
+
+                    <input type="radio" id="mood-neutral" name="mood" value="neutral">
+                    <label for="mood-neutral" class="mood-btn">
+                        <span class="mood-emoji">😐</span>
+                        <span>Neutral</span>
+                    </label>
+
+                    <input type="radio" id="mood-bad" name="mood" value="bad">
+                    <label for="mood-bad" class="mood-btn">
+                        <span class="mood-emoji">😔</span>
+                        <span>Bad</span>
+                    </label>
+
+                    <input type="radio" id="mood-terrible" name="mood" value="terrible">
+                    <label for="mood-terrible" class="mood-btn">
+                        <span class="mood-emoji">😢</span>
+                        <span>Terrible</span>
+                    </label>
+                </div>
             </div>
             <div class="form-group">
-                <label for="notes">Notes (Optional):</label>
-                <textarea id="notes" name="notes" rows="4" placeholder="What's on your mind?"></textarea>
+                <label for="notes">Thoughts & Reflections</label>
+                <textarea id="notes" name="notes" rows="4" placeholder="What's coloring your mood today? What are you grateful for?"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Save Entry</button>
+            <button type="submit" class="btn btn-primary">💜 Save This Moment</button>
         </form>
     </div>
 
     <div class="list-section">
-        <h3>Recent Entries</h3>
+        <h3>🌙 Your Journey</h3>
         {% if entries %}
             <ul class="entry-list mood-list">
                 {% for entry in entries %}
-                <li>
+                <li class="mood-entry mood-{{ entry.mood }}">
                     <div class="entry-header">
-                        <span class="entry-title mood-tag mood-{{ entry.mood }}">{{ entry.mood|title }}</span>
-                        <span class="entry-meta">Logged {{ entry.created_at.strftime('%b %d, %Y %I:%M %p') }}</span>
+                        <span class="entry-title mood-tag mood-{{ entry.mood }}">
+                            {% if entry.mood == 'excellent' %}🌟{% elif entry.mood == 'good' %}😊{% elif entry.mood == 'neutral' %}😐{% elif entry.mood == 'bad' %}😔{% else %}😢{% endif %}
+                            {{ entry.mood|title }}
+                        </span>
+                        <span class="entry-meta">{{ entry.created_at.strftime('%A, %b %d at %I:%M %p') }}</span>
                     </div>
                     {% if entry.notes %}
-                        <p>{{ entry.notes }}</p>
+                        <p class="mood-notes">{{ entry.notes }}</p>
                     {% else %}
-                        <p class="placeholder-text subtle">No notes added.</p>
+                        <p class="mood-notes subtle">Silent reflection</p>
                     {% endif %}
                 </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p class="placeholder-text">Each saved entry will build a timeline of how your days are trending.</p>
+            <p class="placeholder-text">☁️ Begin your emotional journey. Each entry creates a beautiful tapestry of your inner world.</p>
         {% endif %}
     </div>
 </div>
+
+<style>
+.mood-form {
+    background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(233, 213, 255, 0.15));
+}
+
+.mood-selector {
+    margin-bottom: 2rem;
+}
+
+.mood-selector label:first-of-type {
+    display: block;
+    margin-bottom: 1rem;
+    color: #581c87;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.mood-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.mood-buttons input[type="radio"] {
+    display: none;
+}
+
+.mood-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem;
+    border: 2px solid rgba(168, 85, 247, 0.2);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+    min-width: 90px;
+}
+
+.mood-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(168, 85, 247, 0.2);
+    border-color: #a855f7;
+}
+
+input[type="radio"]:checked + .mood-btn {
+    background: linear-gradient(135deg, #a855f7, #9333ea);
+    color: white;
+    border-color: #9333ea;
+    transform: scale(1.05);
+}
+
+.mood-emoji {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.mood-entry {
+    background: linear-gradient(135deg, white, rgba(233, 213, 255, 0.1));
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.mood-entry::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #a855f7, #d8b4fe);
+}
+
+.mood-entry.mood-excellent::before {
+    background: linear-gradient(90deg, #fbbf24, #f59e0b);
+}
+
+.mood-entry.mood-good::before {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.mood-entry.mood-neutral::before {
+    background: linear-gradient(90deg, #9ca3af, #d1d5db);
+}
+
+.mood-entry.mood-bad::before {
+    background: linear-gradient(90deg, #f97316, #fb923c);
+}
+
+.mood-entry.mood-terrible::before {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.mood-notes {
+    margin-top: 1rem;
+    padding-left: 1rem;
+    border-left: 3px solid rgba(168, 85, 247, 0.2);
+    line-height: 1.7;
+    color: #4a5568;
+    font-style: italic;
+}
+
+.mood-notes.subtle {
+    color: #a0aec0;
+}
+</style>
 {% endblock %}

@@ -4,62 +4,260 @@
 
 {% block content %}
 <div class="hero home-hero">
-    <h2>Your SSW555 Starter Pack</h2>
-    <p>Pick one standalone app to launch your project. Each module already lives in its own folder, so you can remove the rest without breaking anything.</p>
-    <p class="hero-reminder"><strong>Reminder:</strong> This isn’t a bundled multi-function platform. Choose one module, plug it into your work, then delete the extras from <code>templates/apps/</code> and the matching routes in <code>app.py</code>.</p>
+    <h2>🚀 Your SSW555 Starter Pack</h2>
+    <p class="hero-subtitle">Four beautifully designed standalone apps to jumpstart your project</p>
+    <p class="hero-reminder">
+        <span class="reminder-badge">💡 TIP</span>
+        Choose one module that fits your needs, then remove the others from <code>templates/apps/</code> and <code>app.py</code> to keep your project focused.
+    </p>
 </div>
 
 <div class="starter-guide">
-    <h3>How to use this pack</h3>
+    <h3>Get Started in 3 Steps</h3>
     <div class="guide-grid">
         <div class="guide-card">
             <span class="step-number">1</span>
-            <h4>Review the modules</h4>
-            <p>Open each demo route or skim the source folders to see how habits, moods, expenses, and recipes are scaffolded.</p>
+            <h4>🔍 Explore</h4>
+            <p>Browse each module below to discover their unique features and design vibes.</p>
         </div>
         <div class="guide-card">
             <span class="step-number">2</span>
-            <h4>Pick your starting point</h4>
-            <p>Select the app that best matches your assignment goals. Remove the other directories so your repo stays focused.</p>
+            <h4>✅ Choose</h4>
+            <p>Select the app that best aligns with your project requirements and aesthetic preferences.</p>
         </div>
         <div class="guide-card">
             <span class="step-number">3</span>
-            <h4>Extend and customize</h4>
-            <p>Adapt models, templates, and styling to meet requirements. Each module is isolated so changes stay contained.</p>
+            <h4>🎨 Customize</h4>
+            <p>Extend the chosen module with your own features while maintaining its clean architecture.</p>
         </div>
     </div>
 </div>
 
-<div class="app-grid">
-    <div class="app-card habit-card">
-        <h3>Habit Tracker</h3>
-        <p>Focus on routines with a clean streak tracker. Great for experiments around behavior or accountability journals.</p>
-        <a href="/habit-tracker" class="btn">Open module</a>
-    </div>
+<div class="app-showcase">
+    <h3 class="showcase-title">Choose Your Perfect Module</h3>
+    <div class="app-grid">
+        <div class="app-card habit-card">
+            <div>
+                <div class="app-icon">🌱</div>
+                <h3>Habit Tracker</h3>
+                <p class="app-description">A minimalist zen garden for building consistent routines. Track daily habits with a clean, focused interface.</p>
+                <div class="app-features">
+                    <span class="feature-tag">Mindful Design</span>
+                    <span class="feature-tag">Progress Tracking</span>
+                    <span class="feature-tag">Streak Counter</span>
+                </div>
+                <a href="/habit-tracker" class="btn">Explore Habits →</a>
+            </div>
+        </div>
 
-    <div class="app-card mood-card">
-        <h3>Mood Journal</h3>
-        <p>Capture daily reflections and patterns. Ideal for wellbeing projects that need sentiment tracking basics.</p>
-        <a href="/mood-journal" class="btn">Open module</a>
-    </div>
+        <div class="app-card mood-card">
+            <div>
+                <div class="app-icon">☁️</div>
+                <h3>Mood Journal</h3>
+                <p class="app-description">A dreamy space for emotional awareness. Capture your daily moods with beautiful, supportive visualizations.</p>
+                <div class="app-features">
+                    <span class="feature-tag">Emotion Tracking</span>
+                    <span class="feature-tag">Daily Reflections</span>
+                    <span class="feature-tag">Mood Patterns</span>
+                </div>
+                <a href="/mood-journal" class="btn">Track Moods →</a>
+            </div>
+        </div>
 
-    <div class="app-card expense-card">
-        <h3>Expense Splitter</h3>
-        <p>Spin up quick cost-sharing demos. Perfect for group assignments where transparent math matters.</p>
-        <a href="/expense-splitter" class="btn">Open module</a>
-    </div>
+        <div class="app-card expense-card">
+            <div>
+                <div class="app-icon">💳</div>
+                <h3>Expense Splitter</h3>
+                <p class="app-description">A sleek tech-forward finance tracker. Split expenses with a modern terminal-inspired interface.</p>
+                <div class="app-features">
+                    <span class="feature-tag">Smart Splitting</span>
+                    <span class="feature-tag">Dark Theme</span>
+                    <span class="feature-tag">Transaction Log</span>
+                </div>
+                <a href="/expense-splitter" class="btn">Split Expenses →</a>
+            </div>
+        </div>
 
-    <div class="app-card recipe-card">
-        <h3>Recipe Assistant</h3>
-        <p>Showcase structured content storage. Useful for knowledge bases, cooking clubs, or research collections.</p>
-        <a href="/recipe-assistant" class="btn">Open module</a>
+        <div class="app-card recipe-card">
+            <div>
+                <div class="app-icon">🍳</div>
+                <h3>Recipe Assistant</h3>
+                <p class="app-description">A warm kitchen companion for your culinary adventures. Organize recipes with a cozy, inviting aesthetic.</p>
+                <div class="app-features">
+                    <span class="feature-tag">Recipe Cards</span>
+                    <span class="feature-tag">Prep Timer</span>
+                    <span class="feature-tag">Cookbook View</span>
+                </div>
+                <a href="/recipe-assistant" class="btn">Cook Something →</a>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="project-info">
-    <h3>Why everything is split up</h3>
-    <p>Each app ships in its own folder (<code>templates/apps/&lt;app-name&gt;</code>) with shared layout assets kept in <code>templates/base.html</code> and <code>static/css</code>.</p>
-    <p>Removing a module is as simple as deleting its template folder and any related database models or routes. Nothing else depends on it.</p>
-    <p>Use this structure as a teaching tool or a lightweight launchpad for SSW555 deliverables.</p>
+    <h3>🏗️ Clean Architecture</h3>
+    <div class="info-grid">
+        <div class="info-card">
+            <h4>📁 Modular Structure</h4>
+            <p>Each app lives in <code>templates/apps/&lt;name&gt;</code> with zero dependencies between modules.</p>
+        </div>
+        <div class="info-card">
+            <h4>🎨 Unique Themes</h4>
+            <p>Every module features a distinct design vibe while sharing core infrastructure.</p>
+        </div>
+        <div class="info-card">
+            <h4>🔧 Easy Removal</h4>
+            <p>Delete unwanted modules by removing their template folder and routes - nothing breaks!</p>
+        </div>
+    </div>
 </div>
+
+<style>
+.home-hero {
+    background: white;
+    position: relative;
+    padding: 4rem 3rem;
+    border: none;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: #4a5568;
+    margin: 1rem 0 2rem;
+    font-weight: 400;
+}
+
+.hero-reminder {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    padding: 1.25rem 2rem;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.reminder-badge {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.showcase-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
+
+.app-card > div {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+    animation: float 4s ease-in-out infinite;
+}
+
+.app-description {
+    flex-grow: 1;
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+}
+
+.app-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.feature-tag {
+    background: rgba(var(--card-accent-rgb, 102, 126, 234), 0.1);
+    color: var(--card-accent);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.habit-card .feature-tag {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.mood-card .feature-tag {
+    background: rgba(168, 85, 247, 0.1);
+    color: #a855f7;
+}
+
+.expense-card .feature-tag {
+    background: rgba(6, 182, 212, 0.1);
+    color: #06b6d4;
+}
+
+.recipe-card .feature-tag {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.info-card {
+    background: linear-gradient(135deg, white, rgba(102, 126, 234, 0.02));
+    padding: 2rem;
+    border-radius: 16px;
+    border: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.info-card h4 {
+    color: #2d3748;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.info-card p {
+    color: #4a5568;
+    line-height: 1.6;
+}
+
+.info-card code {
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.875rem;
+    color: #667eea;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-10px) rotate(-5deg);
+    }
+    75% {
+        transform: translateY(-10px) rotate(5deg);
+    }
+}
+</style>
 {% endblock %}

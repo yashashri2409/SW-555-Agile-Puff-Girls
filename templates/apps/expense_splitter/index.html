@@ -4,67 +4,296 @@
 
 {% block content %}
 <div class="page-header">
-    <h2>Expense Splitter</h2>
-    <p>Split expenses fairly with friends and family</p>
+    <h2>💳 Expense Splitter</h2>
+    <p>Smart financial tracking for teams</p>
 </div>
 
 <div class="module-note">
-    <h3>Built for group projects</h3>
-    <p>Use this calculator by itself when you only need shared cost tracking. Delete the other folders and wire it into your team assignment.</p>
+    <h3>Tech-Forward Finance</h3>
+    <p>A sleek, professional expense tracker with a modern tech aesthetic. Perfect for hackathons, team projects, or any group financial management.</p>
 </div>
 
 <div class="content-section">
-    <div class="form-section">
-        <h3>Add New Expense</h3>
+    <div class="form-section expense-form">
+        <div class="form-header">
+            <h3>⚡ New Transaction</h3>
+            <div class="terminal-style">TERMINAL.EXPENSE.ADD</div>
+        </div>
         <form method="POST" action="/expense-splitter">
             <div class="form-group">
-                <label for="description">Description:</label>
-                <input type="text" id="description" name="description" placeholder="e.g., Dinner at restaurant" required>
+                <label for="description">Description</label>
+                <input type="text" id="description" name="description" placeholder="Project supplies, Team lunch..." required class="tech-input">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="amount">Amount ($)</label>
+                    <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required class="tech-input amount-input">
+                </div>
+                <div class="form-group">
+                    <label for="payer">Paid By</label>
+                    <input type="text" id="payer" name="payer" placeholder="@username" required class="tech-input">
+                </div>
             </div>
             <div class="form-group">
-                <label for="amount">Amount:</label>
-                <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
+                <label for="participants">Split Between</label>
+                <input type="text" id="participants" name="participants" placeholder="@alice, @bob, @charlie" class="tech-input">
+                <span class="input-hint">Comma-separated list of participants</span>
             </div>
-            <div class="form-group">
-                <label for="payer">Who Paid:</label>
-                <input type="text" id="payer" name="payer" placeholder="Name of person who paid" required>
-            </div>
-            <div class="form-group">
-                <label for="participants">Split Between (comma-separated):</label>
-                <input type="text" id="participants" name="participants" placeholder="e.g., John, Jane, Bob">
-            </div>
-            <button type="submit" class="btn btn-primary">Add Expense</button>
+            <button type="submit" class="btn btn-primary tech-btn">
+                <span class="btn-icon">+</span>
+                COMMIT TRANSACTION
+            </button>
         </form>
     </div>
 
     <div class="list-section">
-        <h3>Recent Expenses</h3>
+        <div class="section-header">
+            <h3>📊 Transaction Log</h3>
+            <div class="balance-indicator">BALANCE: CALCULATING...</div>
+        </div>
         {% if expenses %}
             <ul class="entry-list expense-list">
                 {% for item in expenses %}
                     {% set expense = item.model %}
-                <li>
-                    <div class="entry-header">
-                        <span class="entry-title">{{ expense.description }}</span>
-                        <span class="entry-meta">Paid by {{ expense.payer }} on {{ expense.created_at.strftime('%b %d, %Y') }}</span>
-                    </div>
-                    <div class="expense-details">
-                        <span class="amount">${{ '%.2f' % expense.amount }}</span>
-                        {% if item.participants %}
-                            <span class="participants">Split between: {{ item.participants | join(', ') }}</span>
-                            {% if item.share is not none %}
-                                <span class="share">Each owes ${{ '%.2f' % item.share }}</span>
+                <li class="expense-item">
+                    <div class="expense-card">
+                        <div class="transaction-id">#{{ loop.index }}</div>
+                        <div class="entry-header">
+                            <span class="entry-title">{{ expense.description }}</span>
+                            <span class="entry-meta">
+                                <span class="payer-tag">@{{ expense.payer }}</span>
+                                <span class="timestamp">{{ expense.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                            </span>
+                        </div>
+                        <div class="expense-details">
+                            <span class="amount">
+                                <span class="currency">$</span>{{ '%.2f' % expense.amount }}
+                            </span>
+                            {% if item.participants %}
+                                <div class="split-info">
+                                    <span class="participants">
+                                        {% for p in item.participants %}
+                                            <span class="participant-tag">@{{ p }}</span>
+                                        {% endfor %}
+                                    </span>
+                                    {% if item.share is not none %}
+                                        <span class="share">
+                                            <span class="share-label">EACH:</span>
+                                            ${{ '%.2f' % item.share }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <span class="no-split">[NO SPLIT DEFINED]</span>
                             {% endif %}
-                        {% else %}
-                            <span class="participants">No participants listed.</span>
-                        {% endif %}
+                        </div>
                     </div>
                 </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <p class="placeholder-text">Add an expense to see automatic splits and running totals down below.</p>
+            <div class="empty-state">
+                <div class="terminal-prompt">
+                    <span class="prompt-symbol">></span>
+                    <span class="blink">_</span>
+                </div>
+                <p class="placeholder-text">AWAITING FIRST TRANSACTION...</p>
+                <p class="placeholder-subtext">Initialize the expense log by adding your first transaction above.</p>
+            </div>
         {% endif %}
     </div>
 </div>
+
+<style>
+.expense-form {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #f1f5f9;
+    border: 1px solid #06b6d4;
+    border-radius: 12px;
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.terminal-style {
+    font-family: 'Space Mono', monospace;
+    color: #06b6d4;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid #06b6d4;
+    border-radius: 4px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.tech-input {
+    background: #0f172a !important;
+    border: 1px solid #334155 !important;
+    color: #f1f5f9 !important;
+    font-family: 'Space Mono', monospace;
+    border-radius: 8px !important;
+}
+
+.tech-input:focus {
+    border-color: #06b6d4 !important;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1) !important;
+}
+
+.amount-input {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.input-hint {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.tech-btn {
+    background: linear-gradient(135deg, #06b6d4, #0891b2) !important;
+    border: none;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem !important;
+}
+
+.btn-icon {
+    font-size: 1.25rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.balance-indicator {
+    font-family: 'Space Mono', monospace;
+    color: #06b6d4;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.expense-card {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+}
+
+.transaction-id {
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: #06b6d4;
+    color: #0f172a;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.payer-tag, .participant-tag {
+    background: rgba(6, 182, 212, 0.2);
+    color: #06b6d4;
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.875rem;
+    margin: 0 0.25rem;
+}
+
+.timestamp {
+    font-family: 'Space Mono', monospace;
+    color: #64748b;
+    font-size: 0.75rem;
+}
+
+.expense-details .amount {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #06b6d4;
+}
+
+.currency {
+    opacity: 0.6;
+    font-size: 1.25rem;
+}
+
+.split-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #334155;
+}
+
+.share {
+    display: block;
+    margin-top: 0.5rem;
+    font-family: 'Space Mono', monospace;
+    color: #67e8f9;
+}
+
+.share-label {
+    color: #64748b;
+    font-size: 0.75rem;
+}
+
+.no-split {
+    color: #64748b;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.875rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+}
+
+.terminal-prompt {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.5rem;
+    color: #06b6d4;
+    margin-bottom: 1rem;
+}
+
+.prompt-symbol {
+    color: #67e8f9;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+.blink {
+    animation: blink 1s infinite;
+}
+
+.placeholder-subtext {
+    color: #475569;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+</style>
 {% endblock %}
