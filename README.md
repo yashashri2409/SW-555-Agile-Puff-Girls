@@ -48,11 +48,30 @@ SSW555-Example-Project/
 ├── app.py              # Main Flask application with routes
 ├── models.py           # Database models (Habit, MoodEntry, Expense, Recipe)
 ├── extensions.py       # Shared SQLAlchemy instance
+├── pyproject.toml      # Project dependencies (managed by uv)
+├── uv.lock             # Dependency lock file
+│
+├── docs/               # Documentation
+│   ├── CUSTOMIZATION.md
+│   ├── DATABASE.md
+│   ├── DEVELOPMENT.md
+│   └── TROUBLESHOOTING.md
+│
 ├── templates/          # Jinja2 templates
 │   ├── base.html       # Shared layout & navigation
 │   ├── home/           # Landing page
 │   └── apps/           # Individual app templates
-└── static/css/         # Global styles
+│       ├── habit_tracker/
+│       ├── mood_journal/
+│       ├── expense_splitter/
+│       └── recipe_assistant/
+│
+├── static/             # Static files
+│   └── css/
+│       └── style.css   # Global styles
+│
+└── instance/           # Instance-specific files (auto-created)
+    └── app.db          # SQLite database
 ```
 
 ## 🎨 Customization
