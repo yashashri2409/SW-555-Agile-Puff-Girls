@@ -18,7 +18,9 @@ Four complete, production-ready applications to choose from:
 
 Each app features modern UI design, form handling, and database persistence. Pick one, customize it, and build your project on top of it!
 
-## 🚀 Quick Start
+**➡️ New to the starter pack? Start here: [Quick Start Guide](docs/QUICK_START.md)**
+
+## ⚡ Installation
 
 ### Prerequisites
 
@@ -94,6 +96,7 @@ SSW555-Example-Project/
 
 ## 📚 Documentation
 
+- **[Quick Start Guide](docs/QUICK_START.md)** ⭐ - Pick a module and clean up the rest (start here!)
 - **[Customization Guide](docs/CUSTOMIZATION.md)** - How to choose modules, add features, and customize styling
 - **[Database Management](docs/DATABASE.md)** - Schema operations, migrations, and query examples
 - **[Development Guide](docs/DEVELOPMENT.md)** - Advanced features, testing, API development, deployment
