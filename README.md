@@ -115,13 +115,15 @@ SSW555-Example-Project/
 - **Add authentication** - Use Flask-Login for user management
 
 ## 📚 Documentation
-
+-----
 - **[Quick Start Guide](docs/QUICK_START.md)** ⭐ - Pick a module and clean up the rest (start here!)
+- **[CI Quick Start](CI_QUICKSTART.md)** 🚦 - Understand what the GitHub Actions workflows do and how to mirror them locally
+-----
 - **[Testing Guide](docs/TESTING.md)** - Writing and running tests, test organization, best practices
-- **[CI/CD Guide](docs/CI.md)** - GitHub Actions continuous integration and deployment
-- **[Customization Guide](docs/CUSTOMIZATION.md)** - How to choose modules, add features, and customize styling
+- **[CI/CD Guide](docs/CI.md)** - Deep dive into GitHub Actions configuration and customization
+- **[Customization Guide](docs/CUSTOMIZATION.md)** - Extend models, add routes, and restyle the modules you keep
 - **[Database Management](docs/DATABASE.md)** - Schema operations, migrations, and query examples
-- **[Development Guide](docs/DEVELOPMENT.md)** - Advanced features, testing, API development, deployment
+- **[Development Guide](docs/DEVELOPMENT.md)** - Environment setup, architecture, debugging, deployment
 - **[Frontend-Backend Separation](docs/SEPARATION.md)** 🔄 - Convert this project to REST API + modern frontend framework
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
 

@@ -227,70 +227,20 @@ Add CSRF token to forms:
 
 ## Testing
 
-### Unit Tests
+The complete testing workflow—including project fixtures, common commands, and tips for writing new tests—lives in [`docs/TESTING.md`](TESTING.md). Use that guide when you need detailed instructions or examples.
 
-Create a `tests/` directory:
-
-```bash
-mkdir tests
-touch tests/__init__.py
-touch tests/test_models.py
-touch tests/test_routes.py
-```
-
-Example test file (`tests/test_models.py`):
-
-```python
-import unittest
-from app import app, db
-from models import Habit
-
-class HabitModelTestCase(unittest.TestCase):
-    def setUp(self):
-        app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        self.app = app.test_client()
-        with app.app_context():
-            db.create_all()
-
-    def tearDown(self):
-        with app.app_context():
-            db.session.remove()
-            db.drop_all()
-
-    def test_create_habit(self):
-        with app.app_context():
-            habit = Habit(name='Test Habit', description='Test Description')
-            db.session.add(habit)
-            db.session.commit()
-
-            self.assertIsNotNone(habit.id)
-            self.assertEqual(habit.name, 'Test Habit')
-
-if __name__ == '__main__':
-    unittest.main()
-```
-
-Run tests:
+Quick checks to run before you push:
 
 ```bash
-python -m unittest discover tests
+uv run pytest -v
+uv run pytest -k "habit"  # Target a subset during development
 ```
 
-### Using pytest
+Need to adjust or trim tests after removing modules? Head to the **Customizing Tests** section in [`docs/TESTING.md`](TESTING.md) for the exact steps.
 
-Install pytest:
+## Continuous Integration
 
-```bash
-uv add pytest pytest-cov
-```
-
-Run tests:
-
-```bash
-pytest
-pytest --cov=app  # With coverage
-```
+GitHub Actions is already configured for this project. For an overview of what runs in CI, how to read results, and which commands mirror the pipeline locally, see [`CI_QUICKSTART.md`](../CI_QUICKSTART.md). That guide also links to the full CI reference and troubleshooting tips if a workflow fails.
 
 ## API Development
 

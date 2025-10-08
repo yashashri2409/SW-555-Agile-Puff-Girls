@@ -2,52 +2,9 @@
 
 This guide covers how to customize the Student Starter Pack for your specific project needs.
 
-## Choosing Your Module
+## Before You Begin
 
-The starter pack includes four complete applications. You can keep one, several, or all of them depending on your project requirements.
-
-### Step 1: Explore All Modules
-
-1. Start the application: `python app.py`
-2. Navigate to `http://localhost:5000`
-3. Explore each module to understand its features
-
-### Step 2: Remove Unwanted Modules
-
-To remove a module you don't need:
-
-#### 1. Remove Routes from `app.py`
-
-```python
-# Example: To keep only Habit Tracker, remove these imports:
-# from models import MoodEntry, Expense, Recipe
-
-# And remove these routes:
-# @app.route('/mood-journal', methods=['GET', 'POST'])
-# @app.route('/expense-splitter', methods=['GET', 'POST'])
-# @app.route('/recipe-assistant', methods=['GET', 'POST'])
-```
-
-#### 2. Remove Models from `models.py`
-
-Delete or comment out the model classes you don't need:
-- `MoodEntry` for Mood Journal
-- `Expense` for Expense Splitter
-- `Recipe` for Recipe Assistant
-- `Habit` for Habit Tracker
-
-#### 3. Delete Template Folders
-
-Remove the corresponding folders from `templates/apps/`:
-```bash
-rm -rf templates/apps/mood_journal
-rm -rf templates/apps/expense_splitter
-rm -rf templates/apps/recipe_assistant
-```
-
-#### 4. Update Navigation
-
-Edit `templates/base.html` to remove navigation links for deleted modules.
+The Student Starter Pack ships with four complete modules. If you still need to pick your starting point or remove unused modules, follow the step-by-step instructions in [`QUICK_START.md`](QUICK_START.md) first. Once you have the modules you want to keep, come back here to tailor them to your project.
 
 ## Adding New Features
 
