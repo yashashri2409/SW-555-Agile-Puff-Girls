@@ -77,6 +77,53 @@ Open `templates/base.html` and find the `<nav>` section (around line 26).
 
 Keep only the Habit Tracker link.
 
+### Update Unit Tests
+
+**Remove unused tests from `tests/test_models.py`:**
+
+Delete these test sections:
+- All tests under `# === MoodEntry Model Tests ===`
+- All tests under `# === Expense Model Tests ===`
+- All tests under `# === Recipe Model Tests ===`
+
+Keep only tests under `# === Habit Model Tests ===`
+
+**Remove unused tests from `tests/test_routes.py`:**
+
+Delete these test sections:
+- All tests under `# === Mood Journal Tests ===`
+- All tests under `# === Expense Splitter Tests ===`
+- All tests under `# === Recipe Assistant Tests ===`
+
+Keep only tests under `# === Habit Tracker Tests ===`
+
+**Update the parametrized test** (around line 198):
+
+```python
+# Change this line:
+@pytest.mark.parametrize("endpoint", ["/habit-tracker", "/mood-journal", "/expense-splitter", "/recipe-assistant"])
+
+# To this:
+@pytest.mark.parametrize("endpoint", ["/habit-tracker"])
+```
+
+**Update test imports** at the top of both test files:
+
+```python
+# In test_models.py and test_routes.py
+# Change:
+from models import Expense, Habit, MoodEntry, Recipe
+
+# To:
+from models import Habit
+```
+
+**Verify tests pass:**
+
+```bash
+uv run pytest -v
+```
+
 ### Reset Database
 
 ```bash
@@ -124,6 +171,22 @@ rm -rf templates/apps/recipe_assistant
 
 Delete the navigation links for Habit Tracker, Expense Splitter, and Recipe Assistant. Keep only Mood Journal.
 
+### Update Unit Tests
+
+Follow the same process as Option 1, but keep only **MoodEntry** model tests and **Mood Journal** route tests.
+
+Update test imports:
+```python
+from models import MoodEntry
+```
+
+Update parametrized test:
+```python
+@pytest.mark.parametrize("endpoint", ["/mood-journal"])
+```
+
+Verify: `uv run pytest -v`
+
 ### Reset Database
 
 ```bash
@@ -166,6 +229,22 @@ rm -rf templates/apps/recipe_assistant
 ### Update Navigation in `templates/base.html`
 
 Delete the navigation links for Habit Tracker, Mood Journal, and Recipe Assistant. Keep only Expense Splitter.
+
+### Update Unit Tests
+
+Follow the same process as Option 1, but keep only **Expense** model tests and **Expense Splitter** route tests.
+
+Update test imports:
+```python
+from models import Expense
+```
+
+Update parametrized test:
+```python
+@pytest.mark.parametrize("endpoint", ["/expense-splitter"])
+```
+
+Verify: `uv run pytest -v`
 
 ### Reset Database
 
@@ -210,6 +289,22 @@ rm -rf templates/apps/expense_splitter
 
 Delete the navigation links for Habit Tracker, Mood Journal, and Expense Splitter. Keep only Recipe Assistant.
 
+### Update Unit Tests
+
+Follow the same process as Option 1, but keep only **Recipe** model tests and **Recipe Assistant** route tests.
+
+Update test imports:
+```python
+from models import Recipe
+```
+
+Update parametrized test:
+```python
+@pytest.mark.parametrize("endpoint", ["/recipe-assistant"])
+```
+
+Verify: `uv run pytest -v`
+
 ### Reset Database
 
 ```bash
@@ -227,7 +322,11 @@ If you want to keep 2-3 modules, just skip the deletion steps for the modules yo
 2. Delete only the models you don't want
 3. Delete only the templates you don't want
 4. Remove only the nav links you don't want
-5. Reset the database
+5. **Delete only the unit tests for modules you removed**
+6. **Update test imports to include only models you kept**
+7. **Update the parametrized test to include only endpoints you kept**
+8. **Verify tests pass:** `uv run pytest -v`
+9. Reset the database
 
 ---
 
@@ -241,6 +340,7 @@ After cleanup, verify everything works:
 - [ ] Try adding a new item - it saves to database
 - [ ] Check that deleted modules don't appear in navigation
 - [ ] Restart the app - data persists
+- [ ] **Run tests:** `uv run pytest -v` - all tests pass
 
 ## What If I Made a Mistake?
 
@@ -273,6 +373,7 @@ Now that you have a clean starting point:
 - **Common issues**: See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 - **Database problems**: See [DATABASE.md](DATABASE.md)
 - **Development tips**: See [DEVELOPMENT.md](DEVELOPMENT.md)
+- **Testing guide**: See [TESTING.md](TESTING.md)
 
 ---
 

@@ -41,6 +41,9 @@ uv sync
 uv run python app.py
 
 # Open browser at http://localhost:5000
+
+# Run tests (optional)
+uv run pytest -v
 ```
 
 ## 📁 Project Structure
@@ -57,7 +60,15 @@ SSW555-Example-Project/
 │   ├── CUSTOMIZATION.md
 │   ├── DATABASE.md
 │   ├── DEVELOPMENT.md
+│   ├── QUICK_START.md
+│   ├── TESTING.md
 │   └── TROUBLESHOOTING.md
+│
+├── tests/              # Unit and integration tests
+│   ├── __init__.py
+│   ├── conftest.py      # Pytest fixtures
+│   ├── test_models.py   # Model unit tests
+│   └── test_routes.py   # Route integration tests
 │
 ├── templates/          # Jinja2 templates
 │   ├── base.html       # Shared layout & navigation
@@ -97,6 +108,7 @@ SSW555-Example-Project/
 ## 📚 Documentation
 
 - **[Quick Start Guide](docs/QUICK_START.md)** ⭐ - Pick a module and clean up the rest (start here!)
+- **[Testing Guide](docs/TESTING.md)** - Writing and running tests, test organization, best practices
 - **[Customization Guide](docs/CUSTOMIZATION.md)** - How to choose modules, add features, and customize styling
 - **[Database Management](docs/DATABASE.md)** - Schema operations, migrations, and query examples
 - **[Development Guide](docs/DEVELOPMENT.md)** - Advanced features, testing, API development, deployment
