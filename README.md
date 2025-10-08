@@ -6,8 +6,8 @@ A collection of beautifully designed, production-ready web applications built wi
 ![Flask](https://img.shields.io/badge/Flask-3.0+-green.svg)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC.svg)
 ![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)
-![CI](https://github.com/yourusername/SSW555-Example-Project/workflows/CI/badge.svg)
-![Tests](https://github.com/yourusername/SSW555-Example-Project/workflows/Quick%20Test/badge.svg)
+![CI](https://github.com/SIT-RiSE/SSW555-Example-Project/workflows/CI/badge.svg)
+![Tests](https://github.com/SIT-RiSE/SSW555-Example-Project/workflows/Quick%20Test/badge.svg)
 
 ## ✨ What's Inside
 
