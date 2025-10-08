@@ -6,6 +6,8 @@ A collection of beautifully designed, production-ready web applications built wi
 ![Flask](https://img.shields.io/badge/Flask-3.0+-green.svg)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC.svg)
 ![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)
+![CI](https://github.com/yourusername/SSW555-Example-Project/workflows/CI/badge.svg)
+![Tests](https://github.com/yourusername/SSW555-Example-Project/workflows/Quick%20Test/badge.svg)
 
 ## ✨ What's Inside
 
@@ -57,12 +59,19 @@ SSW555-Example-Project/
 ├── uv.lock             # Dependency lock file
 │
 ├── docs/               # Documentation
+│   ├── CI.md
 │   ├── CUSTOMIZATION.md
 │   ├── DATABASE.md
 │   ├── DEVELOPMENT.md
 │   ├── QUICK_START.md
+│   ├── SEPARATION.md
 │   ├── TESTING.md
 │   └── TROUBLESHOOTING.md
+│
+├── .github/            # GitHub configuration
+│   └── workflows/
+│       ├── ci.yml           # Main CI/CD pipeline
+│       └── quick-test.yml   # Fast test workflow
 │
 ├── tests/              # Unit and integration tests
 │   ├── __init__.py
@@ -109,6 +118,7 @@ SSW555-Example-Project/
 
 - **[Quick Start Guide](docs/QUICK_START.md)** ⭐ - Pick a module and clean up the rest (start here!)
 - **[Testing Guide](docs/TESTING.md)** - Writing and running tests, test organization, best practices
+- **[CI/CD Guide](docs/CI.md)** - GitHub Actions continuous integration and deployment
 - **[Customization Guide](docs/CUSTOMIZATION.md)** - How to choose modules, add features, and customize styling
 - **[Database Management](docs/DATABASE.md)** - Schema operations, migrations, and query examples
 - **[Development Guide](docs/DEVELOPMENT.md)** - Advanced features, testing, API development, deployment
