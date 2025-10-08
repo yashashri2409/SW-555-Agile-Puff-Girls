@@ -112,6 +112,7 @@ SSW555-Example-Project/
 - **[Customization Guide](docs/CUSTOMIZATION.md)** - How to choose modules, add features, and customize styling
 - **[Database Management](docs/DATABASE.md)** - Schema operations, migrations, and query examples
 - **[Development Guide](docs/DEVELOPMENT.md)** - Advanced features, testing, API development, deployment
+- **[Frontend-Backend Separation](docs/SEPARATION.md)** 🔄 - Convert this project to REST API + modern frontend framework
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
 
 ## 🛠️ Tech Stack
@@ -119,7 +120,19 @@ SSW555-Example-Project/
 - **Backend:** Flask 3.0+ with SQLAlchemy
 - **Database:** SQLite (easy to switch to PostgreSQL)
 - **Frontend:** Tailwind CSS (via CDN)
-- **Architecture:** Modular MVC pattern
+- **Template Engine:** Jinja2
+- **Architecture:** Monolithic with Server-Side Rendering (SSR)
+
+### 📐 Architecture Note
+
+This project uses a **traditional monolithic architecture** with server-side rendering:
+- Backend and frontend are coupled together
+- Flask renders HTML templates using Jinja2
+- Pages reload on navigation (traditional web app)
+
+**Not a frontend-backend separated architecture** (no REST API, no React/Vue/Angular)
+
+**Want to convert to a separated architecture?** See our guide: **[Frontend-Backend Separation](docs/SEPARATION.md)** 🔄
 
 ## 🎓 Course Information
 
