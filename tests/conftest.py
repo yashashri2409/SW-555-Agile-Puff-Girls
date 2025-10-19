@@ -54,3 +54,22 @@ def client(app):
         Flask test client instance
     """
     return app.test_client()
+
+@pytest.fixture
+def logged_in_client(client):
+    """
+    Create a Flask test client with a simulated authenticated session.
+
+    This client can be used to test routes protected by session authentication.
+
+    Args:
+        client: Flask test client fixture
+
+    Returns:
+        Flask test client with an authenticated session
+    """
+    with client.session_transaction() as sess:
+        # Simulate a successful sign-in required by habit-tracker route
+        sess['authenticated'] = True
+        sess['email'] = 'test@example.com'
+    return client
