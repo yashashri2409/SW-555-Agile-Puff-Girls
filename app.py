@@ -32,6 +32,13 @@ def habit_tracker():
     habits = Habit.query.order_by(Habit.created_at.desc()).all()
     return render_template('apps/habit_tracker/index.html', page_id='habit-tracker', habits=habits)
 
+@app.route('/habit-tracker/delete/<int:habit_id>', methods=['POST'])
+def delete_habit(habit_id):
+    habit = Habit.query.get_or_404(habit_id)
+    db.session.delete(habit)
+    db.session.commit()
+    return redirect(url_for('habit_tracker'))
+
 # test change
 def init_db():
     with app.app_context():
