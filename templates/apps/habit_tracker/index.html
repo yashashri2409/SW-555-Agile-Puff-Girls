@@ -78,7 +78,7 @@
         </div>
 
         {% if habits %}
-            <div class="space-y-3 max-h-96 overflow-y-auto">
+               <div class="space-y-3 max-h-96 overflow-y-auto">
                 {% for habit in habits %}
                 <div class="group p-4 rounded-lg border border-gray-100 hover:border-purple-200 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 transition-all duration-200">
                     <div class="flex items-start justify-between mb-2">
@@ -100,6 +100,21 @@
                                     </svg>
                                 </button>
                             </form>
+                            {% if not habit.completed %}
+<form method="POST" action="/habit-tracker/complete/{{ habit.id }}" class="inline">
+    <button type="submit"
+        class="text-green-500 hover:text-green-700 transition-colors duration-200 opacity-0 group-hover:opacity-100"
+        title="Mark habit as complete">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 13l4 4L19 7" />
+        </svg>
+    </button>
+</form>
+{% else %}
+<span class="text-green-600 text-sm font-medium">✅ Completed</span>
+{% endif %}
+
                         </div>
                     </div>
                     {% if habit.description %}
@@ -118,6 +133,36 @@
                 </div>
                 {% endfor %}
             </div>
+            <!-- ✅ COMPLETED HABITS SECTION -->
+{% set completed_habits = habits | selectattr('completed', 'equalto', True) | list %}
+{% if completed_habits %}
+<div class="mt-10">
+    <h4 class="text-md font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        ✅ Completed Habits
+        <span class="text-xs text-gray-500">({{ completed_habits | length }})</span>
+    </h4>
+
+    <div class="space-y-3 max-h-96 overflow-y-auto">
+        {% for habit in completed_habits %}
+        <div class="p-4 rounded-lg border border-green-200 bg-green-50 transition-all duration-200">
+            <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                    <span class="text-green-600">✔</span>
+                    <span class="font-medium text-green-800">{{ habit.name }}</span>
+                </div>
+                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    {{ habit.created_at.strftime('%b %d') }}
+                </span>
+            </div>
+            {% if habit.description %}
+            <p class="text-sm text-gray-700 ml-6 italic">{{ habit.description }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
         {% else %}
             <div class="text-center py-12">
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full mb-4">

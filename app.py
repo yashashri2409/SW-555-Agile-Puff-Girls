@@ -86,6 +86,14 @@ def delete_habit(habit_id):
 def logout():
     session.clear()
     return redirect(url_for('home'))
+@app.route('/habit-tracker/complete/<int:habit_id>', methods=['POST'])
+def complete_habit(habit_id):
+    """Mark a habit as complete"""
+    habit = Habit.query.get_or_404(habit_id)
+    habit.completed = True
+    db.session.commit()
+    return redirect(url_for('habit_tracker'))
+
 
 def init_db():
     with app.app_context():
@@ -94,4 +102,4 @@ def init_db():
 if __name__ == '__main__':
     if not os.path.exists('app.db'):
         init_db()
-    app.run(debug=True)
+    app.run(debug=True,port=8080)
