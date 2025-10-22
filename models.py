@@ -7,3 +7,6 @@ class Habit(db.Model):
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_dates = db.Column(db.Text)
+    is_archived = db.Column(db.Boolean, default=False)  # ADD THIS LINE
+    archived_at = db.Column(db.DateTime, nullable=True)  # ADD THIS LINE
+

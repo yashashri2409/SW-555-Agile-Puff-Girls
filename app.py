@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import os
 import random
+from datetime import datetime
 
 from extensions import db
 
@@ -71,27 +72,70 @@ def habit_tracker():
 
         return redirect(url_for('habit_tracker'))
 
-    habits = Habit.query.order_by(Habit.created_at.desc()).all()
+    # MODIFIED: Only show non-archived habits
+    habits = Habit.query.filter_by(is_archived=False).order_by(Habit.created_at.desc()).all()
     return render_template('apps/habit_tracker/index.html', page_id='habit-tracker', habits=habits)
 
 @app.route('/habit-tracker/delete/<int:habit_id>', methods=['POST'])
 def delete_habit(habit_id):
+    """Delete a habit permanently"""
+    if not session.get('authenticated'):
+        return redirect(url_for('signin'))
+    
     habit = Habit.query.get_or_404(habit_id)
     db.session.delete(habit)
     db.session.commit()
+    return redirect(request.referrer or url_for('habit_tracker'))
+
+# NEW: Archive a habit
+@app.route('/habit-tracker/archive/<int:habit_id>', methods=['POST'])
+def archive_habit(habit_id):
+    """Archive a habit"""
+    if not session.get('authenticated'):
+        return redirect(url_for('signin'))
+    
+    habit = Habit.query.get_or_404(habit_id)
+    habit.is_archived = True
+    habit.archived_at = datetime.utcnow()
+    db.session.commit()
     return redirect(url_for('habit_tracker'))
+
+# NEW: Unarchive a habit
+@app.route('/habit-tracker/unarchive/<int:habit_id>', methods=['POST'])
+def unarchive_habit(habit_id):
+    """Unarchive a habit"""
+    if not session.get('authenticated'):
+        return redirect(url_for('signin'))
+    
+    habit = Habit.query.get_or_404(habit_id)
+    habit.is_archived = False
+    habit.archived_at = None
+    db.session.commit()
+    return redirect(request.referrer or url_for('habit_tracker'))
+
+# NEW: View archived habits page
+@app.route('/habit-tracker/archived')
+def archived_habits():
+    """View archived habits"""
+    if not session.get('authenticated'):
+        return redirect(url_for('signin'))
+    
+    habits = Habit.query.filter_by(is_archived=True).order_by(Habit.archived_at.desc()).all()
+    return render_template('apps/habit_tracker/archived.html', page_id='habit-tracker', habits=habits)
 
 # test change
 @app.route('/logout')
 def logout():
+    """Logout and clear session"""
     session.clear()
     return redirect(url_for('home'))
 
 def init_db():
+    """Initialize database"""
     with app.app_context():
         db.create_all()
 
 if __name__ == '__main__':
-    if not os.path.exists('app.db'):
+    if not os.path.exists('instance/app.db'):
         init_db()
     app.run(debug=True)
