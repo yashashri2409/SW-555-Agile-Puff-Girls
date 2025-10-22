@@ -16,6 +16,12 @@ from models import Habit
 # Store OTPs temporarily
 otp_store = {}
 
+CATEGORIES = [
+    "Health", "Fitness", "Study", "Productivity",
+    "Mindfulness", "Finance", "Social", "Chores"
+]
+
+
 @app.route('/')
 def home():
     """Landing page"""
@@ -64,15 +70,29 @@ def habit_tracker():
         name = request.form.get('name', '').strip()
         description = request.form.get('description', '').strip()
 
+        category = request.form.get('category', '').strip()
+        if category == 'other':
+            category = request.form.get('category_custom', '').strip()
+
         if name:
-            habit = Habit(name=name, description=description or None)
+            habit = Habit(
+                name=name,
+                description=description or None,
+                category=(category or None)  # safe if empty
+            )
             db.session.add(habit)
             db.session.commit()
 
         return redirect(url_for('habit_tracker'))
 
     habits = Habit.query.order_by(Habit.created_at.desc()).all()
-    return render_template('apps/habit_tracker/index.html', page_id='habit-tracker', habits=habits)
+    return render_template(
+        'apps/habit_tracker/index.html',
+        page_id='habit-tracker',
+        habits=habits,
+        categories=CATEGORIES
+    )
+
 
 @app.route('/habit-tracker/delete/<int:habit_id>', methods=['POST'])
 def delete_habit(habit_id):
