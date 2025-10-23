@@ -1,12 +1,9 @@
-import pytest
-from sqlalchemy.exc import IntegrityError
-
 from extensions import db
 from models import Habit
 
-
 # === Habit Model Tests ===
 #
+
 
 def test_habit_create_and_persist(app):
     """Test that Habit model can be created and persisted to the database."""
@@ -37,4 +34,3 @@ def test_habit_allows_optional_description(app):
     stored = Habit.query.first()
     assert stored is not None
     assert stored.description is None
-
