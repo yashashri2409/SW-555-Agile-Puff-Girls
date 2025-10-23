@@ -1,82 +1,157 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import os
 import random
 from datetime import datetime
 
+from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+
 from extensions import db
+from models import Habit
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'dev-secret-key-change-in-production'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SECRET_KEY"] = "dev-secret-key-change-in-production"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
+import pytest
 from models import Habit
 
+# === Habit Tracker Tests ===
+
+def test_habit_tracker_get_returns_ok(logged_in_client):
+    """Test that GET /habit-tracker returns a 200 status code when authenticated."""
+    # Act
+    response = logged_in_client.get('/habit-tracker')
+    # Assert
+    assert response.status_code == 200
+
+def test_habit_tracker_post_creates_habit(logged_in_client, app):
+    """Test that POST /habit-tracker creates a new habit in the database when authenticated."""
+    # Arrange
+    habit_data = {'name': 'Read 20 pages', 'description': 'Daily reading goal'}
+    # Act
+    response = logged_in_client.post('/habit-tracker', data=habit_data, follow_redirects=False)
+    # Assert
+    assert response.status_code == 302
+    
+    with app.app_context():
+        stored = Habit.query.filter_by(name='Read 20 pages').first()
+        assert stored is not None
+        assert stored.description == 'Daily reading goal'
+
+def test_habit_tracker_delete_removes_habit(logged_in_client, app):
+    """Test that POST /habit-tracker/delete/<id> removes a habit from the database."""
+    # Arrange
+    with app.app_context():
+        habit = Habit(name='Morning Run', description='Run 5k every morning')
+        from extensions import db
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+    
+    # Act
+    response = logged_in_client.post(f'/habit-tracker/delete/{habit_id}', follow_redirects=False)
+    
+    # Assert
+    assert response.status_code == 302
+    # Check if redirect contains habit-tracker (could be full path or relative)
+    assert 'habit-tracker' in response.location or response.location == '/habit-tracker'
+    
+    with app.app_context():
+        deleted_habit = Habit.query.filter_by(id=habit_id).first()
+        assert deleted_habit is None
+
+def test_habit_tracker_delete_invalid_id_returns_404(logged_in_client):
+    """Test that POST /habit-tracker/delete/<invalid_id> returns 404."""
+    # Act
+    response = logged_in_client.post('/habit-tracker/delete/99999', follow_redirects=False)
+    # Assert
+    assert response.status_code == 404
+
+# === Parametrized Tests ===
+@pytest.mark.parametrize(
+    "endpoint",
+    ["/habit-tracker"]
+)
+def test_all_modules_get_returns_ok(logged_in_client, endpoint):
+    """Test that all module endpoints return 200 status code on GET requests when authenticated."""
+    # Act
+    response = logged_in_client.get(endpoint)
+    # Assert
+    assert response.status_code == 200
 # Store OTPs temporarily
 otp_store = {}
 
-@app.route('/')
+
+@app.route("/")
 def home():
     """Landing page"""
-    return render_template('home/index.html')
+    return render_template("home/index.html")
 
-@app.route('/signin', methods=['GET', 'POST'])
+
+@app.route("/signin", methods=["GET", "POST"])
 def signin():
     """Sign in with OTP"""
-    if request.method == 'POST':
+    if request.method == "POST":
         data = request.get_json()
-        
-        if 'email' in data and 'action' not in data:
+
+        if "email" in data and "action" not in data:
             # Generate OTP
-            email = data['email']
+            email = data["email"]
             otp = str(random.randint(100000, 999999))
             otp_store[email] = otp
-            
-            print(f"\n{'='*50}")
-            print(f"OTP for {email}: {otp}")
-            print(f"{'='*50}\n")
-            
-            return jsonify({'success': True, 'message': f'OTP sent to {email}', 'otp': otp})
-        
-        elif 'action' in data and data['action'] == 'verify':
-            # Verify OTP
-            email = data['email']
-            otp = data['otp']
-            
-            if email in otp_store and otp_store[email] == otp:
-                session['authenticated'] = True
-                session['email'] = email
-                del otp_store[email]
-                return jsonify({'success': True, 'message': 'Authentication successful'})
-            else:
-                return jsonify({'success': False, 'message': 'Invalid OTP'})
-    
-    return render_template('home/signIn.html')
 
-@app.route('/habit-tracker', methods=['GET', 'POST'])
+            print(f"\n{'=' * 50}")
+            print(f"OTP for {email}: {otp}")
+            print(f"{'=' * 50}\n")
+
+            return jsonify({"success": True, "message": f"OTP sent to {email}", "otp": otp})
+
+        elif "action" in data and data["action"] == "verify":
+            # Verify OTP
+            email = data["email"]
+            otp = data["otp"]
+
+            if email in otp_store and otp_store[email] == otp:
+                session["authenticated"] = True
+                session["email"] = email
+                del otp_store[email]
+                return jsonify({"success": True, "message": "Authentication successful"})
+            else:
+                return jsonify({"success": False, "message": "Invalid OTP"})
+
+    return render_template("home/signIn.html")
+
+
+@app.route("/habit-tracker", methods=["GET", "POST"])
 def habit_tracker():
     """Habit tracker - protected"""
-    if not session.get('authenticated'):
-        return redirect(url_for('signin'))
-    
-    if request.method == 'POST':
-        name = request.form.get('name', '').strip()
-        description = request.form.get('description', '').strip()
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        description = request.form.get("description", "").strip()
 
         if name:
             habit = Habit(name=name, description=description or None)
             db.session.add(habit)
             db.session.commit()
 
-        return redirect(url_for('habit_tracker'))
+        return redirect(url_for("habit_tracker"))
 
+<<<<<<< HEAD
     # MODIFIED: Only show non-archived habits
     habits = Habit.query.filter_by(is_archived=False).order_by(Habit.created_at.desc()).all()
     return render_template('apps/habit_tracker/index.html', page_id='habit-tracker', habits=habits)
+=======
+    habits = Habit.query.order_by(Habit.created_at.desc()).all()
+    return render_template("apps/habit_tracker/index.html", page_id="habit-tracker", habits=habits)
+>>>>>>> a956aecc90dea88c4f82a6fbbd00f2177ea3492d
 
-@app.route('/habit-tracker/delete/<int:habit_id>', methods=['POST'])
+
+@app.route("/habit-tracker/delete/<int:habit_id>", methods=["POST"])
 def delete_habit(habit_id):
     """Delete a habit permanently"""
     if not session.get('authenticated'):
@@ -85,6 +160,7 @@ def delete_habit(habit_id):
     habit = Habit.query.get_or_404(habit_id)
     db.session.delete(habit)
     db.session.commit()
+<<<<<<< HEAD
     return redirect(request.referrer or url_for('habit_tracker'))
 
 # NEW: Archive a habit
@@ -99,6 +175,10 @@ def archive_habit(habit_id):
     habit.archived_at = datetime.utcnow()
     db.session.commit()
     return redirect(url_for('habit_tracker'))
+=======
+    return redirect(url_for("habit_tracker"))
+
+>>>>>>> a956aecc90dea88c4f82a6fbbd00f2177ea3492d
 
 # NEW: Unarchive a habit
 @app.route('/habit-tracker/unarchive/<int:habit_id>', methods=['POST'])
@@ -124,18 +204,25 @@ def archived_habits():
     return render_template('apps/habit_tracker/archived.html', page_id='habit-tracker', habits=habits)
 
 # test change
-@app.route('/logout')
+@app.route("/logout")
 def logout():
     """Logout and clear session"""
     session.clear()
-    return redirect(url_for('home'))
+    return redirect(url_for("home"))
+
 
 def init_db():
     """Initialize database"""
     with app.app_context():
         db.create_all()
 
+<<<<<<< HEAD
 if __name__ == '__main__':
     if not os.path.exists('instance/app.db'):
+=======
+
+if __name__ == "__main__":
+    if not os.path.exists("app.db"):
+>>>>>>> a956aecc90dea88c4f82a6fbbd00f2177ea3492d
         init_db()
     app.run(debug=True)
