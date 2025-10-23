@@ -14,72 +14,6 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
-import pytest
-from models import Habit
-
-# === Habit Tracker Tests ===
-
-def test_habit_tracker_get_returns_ok(logged_in_client):
-    """Test that GET /habit-tracker returns a 200 status code when authenticated."""
-    # Act
-    response = logged_in_client.get('/habit-tracker')
-    # Assert
-    assert response.status_code == 200
-
-def test_habit_tracker_post_creates_habit(logged_in_client, app):
-    """Test that POST /habit-tracker creates a new habit in the database when authenticated."""
-    # Arrange
-    habit_data = {'name': 'Read 20 pages', 'description': 'Daily reading goal'}
-    # Act
-    response = logged_in_client.post('/habit-tracker', data=habit_data, follow_redirects=False)
-    # Assert
-    assert response.status_code == 302
-    
-    with app.app_context():
-        stored = Habit.query.filter_by(name='Read 20 pages').first()
-        assert stored is not None
-        assert stored.description == 'Daily reading goal'
-
-def test_habit_tracker_delete_removes_habit(logged_in_client, app):
-    """Test that POST /habit-tracker/delete/<id> removes a habit from the database."""
-    # Arrange
-    with app.app_context():
-        habit = Habit(name='Morning Run', description='Run 5k every morning')
-        from extensions import db
-        db.session.add(habit)
-        db.session.commit()
-        habit_id = habit.id
-    
-    # Act
-    response = logged_in_client.post(f'/habit-tracker/delete/{habit_id}', follow_redirects=False)
-    
-    # Assert
-    assert response.status_code == 302
-    # Check if redirect contains habit-tracker (could be full path or relative)
-    assert 'habit-tracker' in response.location or response.location == '/habit-tracker'
-    
-    with app.app_context():
-        deleted_habit = Habit.query.filter_by(id=habit_id).first()
-        assert deleted_habit is None
-
-def test_habit_tracker_delete_invalid_id_returns_404(logged_in_client):
-    """Test that POST /habit-tracker/delete/<invalid_id> returns 404."""
-    # Act
-    response = logged_in_client.post('/habit-tracker/delete/99999', follow_redirects=False)
-    # Assert
-    assert response.status_code == 404
-
-# === Parametrized Tests ===
-@pytest.mark.parametrize(
-    "endpoint",
-    ["/habit-tracker"]
-)
-def test_all_modules_get_returns_ok(logged_in_client, endpoint):
-    """Test that all module endpoints return 200 status code on GET requests when authenticated."""
-    # Act
-    response = logged_in_client.get(endpoint)
-    # Assert
-    assert response.status_code == 200
 # Store OTPs temporarily
 otp_store = {}
 
@@ -141,69 +75,62 @@ def habit_tracker():
 
         return redirect(url_for("habit_tracker"))
 
-<<<<<<< HEAD
     # MODIFIED: Only show non-archived habits
     habits = Habit.query.filter_by(is_archived=False).order_by(Habit.created_at.desc()).all()
-    return render_template('apps/habit_tracker/index.html', page_id='habit-tracker', habits=habits)
-=======
-    habits = Habit.query.order_by(Habit.created_at.desc()).all()
     return render_template("apps/habit_tracker/index.html", page_id="habit-tracker", habits=habits)
->>>>>>> a956aecc90dea88c4f82a6fbbd00f2177ea3492d
 
 
 @app.route("/habit-tracker/delete/<int:habit_id>", methods=["POST"])
 def delete_habit(habit_id):
     """Delete a habit permanently"""
-    if not session.get('authenticated'):
-        return redirect(url_for('signin'))
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
     
     habit = Habit.query.get_or_404(habit_id)
     db.session.delete(habit)
     db.session.commit()
-<<<<<<< HEAD
-    return redirect(request.referrer or url_for('habit_tracker'))
+    return redirect(request.referrer or url_for("habit_tracker"))
+
 
 # NEW: Archive a habit
-@app.route('/habit-tracker/archive/<int:habit_id>', methods=['POST'])
+@app.route("/habit-tracker/archive/<int:habit_id>", methods=["POST"])
 def archive_habit(habit_id):
     """Archive a habit"""
-    if not session.get('authenticated'):
-        return redirect(url_for('signin'))
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
     
     habit = Habit.query.get_or_404(habit_id)
     habit.is_archived = True
     habit.archived_at = datetime.utcnow()
     db.session.commit()
-    return redirect(url_for('habit_tracker'))
-=======
     return redirect(url_for("habit_tracker"))
 
->>>>>>> a956aecc90dea88c4f82a6fbbd00f2177ea3492d
 
 # NEW: Unarchive a habit
-@app.route('/habit-tracker/unarchive/<int:habit_id>', methods=['POST'])
+@app.route("/habit-tracker/unarchive/<int:habit_id>", methods=["POST"])
 def unarchive_habit(habit_id):
     """Unarchive a habit"""
-    if not session.get('authenticated'):
-        return redirect(url_for('signin'))
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
     
     habit = Habit.query.get_or_404(habit_id)
     habit.is_archived = False
     habit.archived_at = None
     db.session.commit()
-    return redirect(request.referrer or url_for('habit_tracker'))
+    return redirect(request.referrer or url_for("habit_tracker"))
+
 
 # NEW: View archived habits page
-@app.route('/habit-tracker/archived')
+@app.route("/habit-tracker/archived")
 def archived_habits():
     """View archived habits"""
-    if not session.get('authenticated'):
-        return redirect(url_for('signin'))
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
     
     habits = Habit.query.filter_by(is_archived=True).order_by(Habit.archived_at.desc()).all()
-    return render_template('apps/habit_tracker/archived.html', page_id='habit-tracker', habits=habits)
+    return render_template("apps/habit_tracker/archived.html", page_id="habit-tracker", habits=habits)
 
-# test change
+
 @app.route("/logout")
 def logout():
     """Logout and clear session"""
@@ -216,13 +143,8 @@ def init_db():
     with app.app_context():
         db.create_all()
 
-<<<<<<< HEAD
-if __name__ == '__main__':
-    if not os.path.exists('instance/app.db'):
-=======
 
 if __name__ == "__main__":
-    if not os.path.exists("app.db"):
->>>>>>> a956aecc90dea88c4f82a6fbbd00f2177ea3492d
+    if not os.path.exists("instance/app.db"):
         init_db()
     app.run(debug=True)
