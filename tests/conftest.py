@@ -9,6 +9,7 @@ This module provides shared fixtures used across all test files:
 import pytest
 
 from app import app as flask_app
+from app import otp_store
 from extensions import db
 
 
@@ -37,7 +38,9 @@ def app(tmp_path):
         db.session.remove()
         db.drop_all()
         db.create_all()
+        otp_store.clear()
         yield flask_app
+        otp_store.clear()
         db.session.remove()
         db.drop_all()
 
@@ -55,6 +58,7 @@ def client(app):
     """
     return app.test_client()
 
+
 @pytest.fixture
 def logged_in_client(client):
     """
@@ -70,6 +74,6 @@ def logged_in_client(client):
     """
     with client.session_transaction() as sess:
         # Simulate a successful sign-in required by habit-tracker route
-        sess['authenticated'] = True
-        sess['email'] = 'test@example.com'
+        sess["authenticated"] = True
+        sess["email"] = "test@example.com"
     return client
