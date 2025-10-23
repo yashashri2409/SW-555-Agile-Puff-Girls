@@ -1,6 +1,6 @@
 # Habit Tracker
 
-![CI](https://github.com/yashashri2409/SW-555-Agile-Puff-Girls/workflows/CI/badge.svg?branch=feat/US02-delete-habit)
+![CI](https://github.com/yashashri2409/SW-555-Agile-Puff-Girls/actions/workflows/ci.yml/badge.svg)
 
 ## Project Description
 
