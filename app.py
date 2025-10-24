@@ -97,8 +97,6 @@ def habit_tracker():
         categories=CATEGORIES
     )
 
-    return render_template("apps/habit_tracker/index.html", page_id="habit-tracker", habits=habits)
-
 
 @app.route("/habit-tracker/delete/<int:habit_id>", methods=["POST"])
 def delete_habit(habit_id):
