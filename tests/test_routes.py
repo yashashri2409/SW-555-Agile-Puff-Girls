@@ -168,6 +168,53 @@ def test_habit_tracker_delete_invalid_id_returns_404(client):
     # Assert
     assert response.status_code == 404
 
+def test_habit_tracker_post_saves_predefined_category(logged_in_client, app):
+    """Selecting a predefined category stores it on the Habit."""
+    form = {
+        "name": "Read 10 pages",
+        "description": "Night routine",
+        "category": "Fitness"  # one of the predefined categories
+    }
+    resp = logged_in_client.post("/habit-tracker", data=form, follow_redirects=False)
+    assert resp.status_code == 302 and resp.location == "/habit-tracker"
+
+    with app.app_context():
+        stored = Habit.query.filter_by(name="Read 10 pages").first()
+        assert stored is not None
+        assert stored.category == "Fitness"
+def test_habit_tracker_post_uses_category_custom_when_other_selected(logged_in_client, app):
+    """If category=='other', the value from category_custom is stored."""
+    form = {
+        "name": "Evening Walk",
+        "description": "30 mins",
+        "category": "other",
+        "category_custom": "Wellness"
+    }
+    resp = logged_in_client.post("/habit-tracker", data=form, follow_redirects=False)
+    assert resp.status_code == 302 and resp.location == "/habit-tracker"
+
+    with app.app_context():
+        stored = Habit.query.filter_by(name="Evening Walk").first()
+        assert stored is not None
+        assert stored.category == "Wellness"
+def test_habit_dashboard_displays_category(logged_in_client, app):
+    """After creating a habit with a category, the /habit-tracker page shows that category text."""
+    # Create a habit with a category
+    form = {
+        "name": "Meditation",
+        "description": "Mindful breathing",
+        "category": "Mindfulness"
+    }
+    create_resp = logged_in_client.post("/habit-tracker", data=form, follow_redirects=False)
+    assert create_resp.status_code == 302
+
+    # Load dashboard and assert category label is visible in HTML
+    page_resp = logged_in_client.get("/habit-tracker", follow_redirects=True)
+    assert page_resp.status_code == 200
+    html = page_resp.data.decode("utf-8")
+    assert "Meditation" in html
+    assert "Mindfulness" in html  # category shown on the dashboard
+
 
 # === Parametrized Tests ===
 
