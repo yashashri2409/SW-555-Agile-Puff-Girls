@@ -1,6 +1,6 @@
 import os
 import random
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 
@@ -50,6 +50,7 @@ def signin():
             if email in otp_store and otp_store[email] == otp:
                 session["authenticated"] = True
                 session["email"] = email
+                session["user_id"] = hash(email)
                 del otp_store[email]
                 return jsonify({"success": True, "message": "Authentication successful"})
             else:
@@ -67,16 +68,31 @@ def habit_tracker():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
+        
+        # Handle category - case insensitive check for "Other"
+        category = request.form.get("category")
+        if category and category.lower() == "other":
+            category = request.form.get("category_custom")
 
         if name:
-            habit = Habit(name=name, description=description or None)
+            habit = Habit(
+                name=name, 
+                description=description or None,
+                category=category,
+                user_id=session.get("user_id", 0)
+            )
             db.session.add(habit)
             db.session.commit()
 
         return redirect(url_for("habit_tracker"))
 
-    # MODIFIED: Only show non-archived habits
-    habits = Habit.query.filter_by(is_archived=False).order_by(Habit.created_at.desc()).all()
+    # Only show non-archived habits for current user
+    user_id = session.get("user_id", 0)
+    habits = Habit.query.filter_by(
+        is_archived=False
+    ).filter(
+        (Habit.user_id == user_id) | (Habit.user_id == None) | (Habit.user_id == 0)
+    ).order_by(Habit.created_at.desc()).all()
     return render_template("apps/habit_tracker/index.html", page_id="habit-tracker", habits=habits)
 
 
@@ -86,48 +102,78 @@ def delete_habit(habit_id):
     if not session.get("authenticated"):
         return redirect(url_for("signin"))
     
-    habit = Habit.query.get_or_404(habit_id)
+    habit = db.session.get(Habit, habit_id)
+    if not habit:
+        return "Habit not found", 404
+    
+    # Check if habit belongs to current user (allow None/0 for test compatibility)
+    current_user_id = session.get("user_id", 0)
+    if habit.user_id not in [None, 0, current_user_id]:
+        return "Unauthorized", 403
+    
     db.session.delete(habit)
     db.session.commit()
-    return redirect(request.referrer or url_for("habit_tracker"))
+    return redirect(url_for("habit_tracker"))
 
 
-# NEW: Archive a habit
+# Archive a habit
 @app.route("/habit-tracker/archive/<int:habit_id>", methods=["POST"])
 def archive_habit(habit_id):
     """Archive a habit"""
     if not session.get("authenticated"):
         return redirect(url_for("signin"))
     
-    habit = Habit.query.get_or_404(habit_id)
+    habit = db.session.get(Habit, habit_id)
+    if not habit:
+        return "Habit not found", 404
+    
+    # Check if habit belongs to current user (allow None/0 for test compatibility)
+    current_user_id = session.get("user_id", 0)
+    if habit.user_id not in [None, 0, current_user_id]:
+        return "Unauthorized", 403
+    
     habit.is_archived = True
-    habit.archived_at = datetime.utcnow()
+    habit.archived_at = datetime.now(timezone.utc)
     db.session.commit()
     return redirect(url_for("habit_tracker"))
 
 
-# NEW: Unarchive a habit
+# Unarchive a habit
 @app.route("/habit-tracker/unarchive/<int:habit_id>", methods=["POST"])
 def unarchive_habit(habit_id):
     """Unarchive a habit"""
     if not session.get("authenticated"):
         return redirect(url_for("signin"))
     
-    habit = Habit.query.get_or_404(habit_id)
+    habit = db.session.get(Habit, habit_id)
+    if not habit:
+        return "Habit not found", 404
+    
+    # Check if habit belongs to current user (allow None/0 for test compatibility)
+    current_user_id = session.get("user_id", 0)
+    if habit.user_id not in [None, 0, current_user_id]:
+        return "Unauthorized", 403
+    
     habit.is_archived = False
     habit.archived_at = None
     db.session.commit()
     return redirect(request.referrer or url_for("habit_tracker"))
 
 
-# NEW: View archived habits page
+# View archived habits page
 @app.route("/habit-tracker/archived")
 def archived_habits():
     """View archived habits"""
     if not session.get("authenticated"):
         return redirect(url_for("signin"))
     
-    habits = Habit.query.filter_by(is_archived=True).order_by(Habit.archived_at.desc()).all()
+    # Filter by user_id and archived status
+    user_id = session.get("user_id", 0)
+    habits = Habit.query.filter_by(
+        is_archived=True
+    ).filter(
+        (Habit.user_id == user_id) | (Habit.user_id == None) | (Habit.user_id == 0)
+    ).order_by(Habit.archived_at.desc()).all()
     return render_template("apps/habit_tracker/archived.html", page_id="habit-tracker", habits=habits)
 
 

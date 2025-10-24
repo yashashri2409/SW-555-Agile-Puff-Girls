@@ -138,7 +138,7 @@ def test_habit_tracker_post_creates_habit(logged_in_client, app):
         assert stored.description == "Daily reading goal"
 
 
-def test_habit_tracker_delete_removes_habit(client, app):
+def test_habit_tracker_delete_removes_habit(logged_in_client, app):
     """Test that POST /habit-tracker/delete/<id> removes a habit from the database."""
     # Arrange
     with app.app_context():
@@ -150,7 +150,7 @@ def test_habit_tracker_delete_removes_habit(client, app):
         habit_id = habit.id
 
     # Act
-    response = client.post(f"/habit-tracker/delete/{habit_id}", follow_redirects=False)
+    response = logged_in_client.post(f"/habit-tracker/delete/{habit_id}", follow_redirects=False)
 
     # Assert
     assert response.status_code == 302
@@ -160,10 +160,10 @@ def test_habit_tracker_delete_removes_habit(client, app):
         assert deleted_habit is None
 
 
-def test_habit_tracker_delete_invalid_id_returns_404(client):
+def test_habit_tracker_delete_invalid_id_returns_404(logged_in_client):
     """Test that POST /habit-tracker/delete/<invalid_id> returns 404."""
     # Act
-    response = client.post("/habit-tracker/delete/99999", follow_redirects=False)
+    response = logged_in_client.post("/habit-tracker/delete/99999", follow_redirects=False)
 
     # Assert
     assert response.status_code == 404
@@ -271,12 +271,12 @@ def test_unarchive_habit_success(logged_in_client, app):
     """Test that POST /habit-tracker/unarchive/<id> unarchives a habit successfully."""
     # Arrange: Create an archived habit
     with app.app_context():
-        from datetime import datetime
+        from datetime import datetime, timezone
         habit = Habit(
             name='Evening Walk',
             description='30 min walk',
             is_archived=True,
-            archived_at=datetime.utcnow()
+            archived_at=datetime.now(timezone.utc)
         )
         from extensions import db
         db.session.add(habit)
@@ -336,17 +336,22 @@ def test_archived_habits_page_requires_auth(client):
 
 def test_archived_habits_page_shows_only_archived(logged_in_client, app):
     """Test that /habit-tracker/archived page only displays archived habits."""
-    # Arrange: Create one active and one archived habit
+    # Arrange: Create one active and one archived habit with proper user_id
     with app.app_context():
-        from datetime import datetime
+        from datetime import datetime, timezone
         from extensions import db
         
-        active_habit = Habit(name='Active Habit', description='Not archived', is_archived=False)
+        # Get the logged-in user's ID from session
+        with logged_in_client.session_transaction() as sess:
+            user_id = sess.get('user_id', 0)
+        
+        active_habit = Habit(name='My Active Habit Item', description='Not archived', is_archived=False, user_id=user_id)
         archived_habit = Habit(
-            name='Archived Habit',
+            name='My Archived Habit Item',
             description='This is archived',
             is_archived=True,
-            archived_at=datetime.utcnow()
+            archived_at=datetime.now(timezone.utc),
+            user_id=user_id
         )
         db.session.add(active_habit)
         db.session.add(archived_habit)
@@ -356,25 +361,30 @@ def test_archived_habits_page_shows_only_archived(logged_in_client, app):
     response = logged_in_client.get('/habit-tracker/archived')
     html = response.data.decode('utf-8')
     
-    # Assert: Only archived habit should appear
+    # Assert: Only archived habit should appear in the habit list
     assert response.status_code == 200
-    assert 'Archived Habit' in html
-    assert 'Active Habit' not in html
+    assert 'My Archived Habit Item' in html
+    assert 'My Active Habit Item' not in html
 
 
 def test_habit_tracker_page_shows_only_active(logged_in_client, app):
     """Test that /habit-tracker page only displays non-archived habits."""
-    # Arrange: Create one active and one archived habit
+    # Arrange: Create one active and one archived habit with proper user_id
     with app.app_context():
-        from datetime import datetime
+        from datetime import datetime, timezone
         from extensions import db
         
-        active_habit = Habit(name='Daily Exercise', description='Active habit', is_archived=False)
+        # Get the logged-in user's ID from session
+        with logged_in_client.session_transaction() as sess:
+            user_id = sess.get('user_id', 0)
+        
+        active_habit = Habit(name='Daily Exercise', description='Active habit', is_archived=False, user_id=user_id)
         archived_habit = Habit(
             name='Old Habit',
             description='Archived habit',
             is_archived=True,
-            archived_at=datetime.utcnow()
+            archived_at=datetime.now(timezone.utc),
+            user_id=user_id
         )
         db.session.add(active_habit)
         db.session.add(archived_habit)
