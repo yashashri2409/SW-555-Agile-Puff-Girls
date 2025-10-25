@@ -116,6 +116,10 @@ def delete_habit(habit_id):
     return redirect(url_for("habit_tracker"))
 
 
+# ============================================================================
+# YOUR ARCHIVE/UNARCHIVE CODE STARTS HERE
+# ============================================================================
+
 # Archive a habit
 @app.route("/habit-tracker/archive/<int:habit_id>", methods=["POST"])
 def archive_habit(habit_id):
@@ -175,6 +179,10 @@ def archived_habits():
         (Habit.user_id == user_id) | (Habit.user_id == None) | (Habit.user_id == 0)
     ).order_by(Habit.archived_at.desc()).all()
     return render_template("apps/habit_tracker/archived.html", page_id="habit-tracker", habits=habits)
+
+# ============================================================================
+# YOUR ARCHIVE/UNARCHIVE CODE ENDS HERE
+# ============================================================================
 
 
 @app.route("/logout")
