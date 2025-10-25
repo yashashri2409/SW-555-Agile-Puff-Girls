@@ -1,9 +1,7 @@
 import os
 import random
 from datetime import datetime, timezone
-
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
-
 from extensions import db
 from models import Habit
 
@@ -17,8 +15,12 @@ db.init_app(app)
 # Store OTPs temporarily
 otp_store = {}
 
+CATEGORIES = [
+    "Health", "Fitness", "Study", "Productivity",
+    "Mindfulness", "Finance", "Social", "Chores"
+]
 
-@app.route("/")
+@app.route('/')
 def home():
     """Landing page"""
     return render_template("home/index.html")
@@ -50,7 +52,6 @@ def signin():
             if email in otp_store and otp_store[email] == otp:
                 session["authenticated"] = True
                 session["email"] = email
-                session["user_id"] = hash(email)
                 del otp_store[email]
                 return jsonify({"success": True, "message": "Authentication successful"})
             else:
@@ -68,59 +69,43 @@ def habit_tracker():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
+        category = request.form.get('category', '').strip()
         
-        # Handle category - case insensitive check for "Other"
-        category = request.form.get("category")
-        if category and category.lower() == "other":
-            category = request.form.get("category_custom")
+        if category == 'other':
+            category = request.form.get('category_custom', '').strip()
 
         if name:
             habit = Habit(
-                name=name, 
+                name=name,
                 description=description or None,
-                category=category,
-                user_id=session.get("user_id", 0)
+                category=(category or None)  # safe if empty
             )
             db.session.add(habit)
             db.session.commit()
 
         return redirect(url_for("habit_tracker"))
 
-    # Only show non-archived habits for current user
-    user_id = session.get("user_id", 0)
-    habits = Habit.query.filter_by(
-        is_archived=False
-    ).filter(
-        (Habit.user_id == user_id) | (Habit.user_id == None) | (Habit.user_id == 0)
-    ).order_by(Habit.created_at.desc()).all()
-    return render_template("apps/habit_tracker/index.html", page_id="habit-tracker", habits=habits)
+    habits = Habit.query.order_by(Habit.created_at.desc()).all()
+    return render_template(
+        'apps/habit_tracker/index.html',
+        page_id='habit-tracker',
+        habits=habits,
+        categories=CATEGORIES
+    )
 
 
 @app.route("/habit-tracker/delete/<int:habit_id>", methods=["POST"])
 def delete_habit(habit_id):
-    """Delete a habit permanently"""
-    if not session.get("authenticated"):
-        return redirect(url_for("signin"))
-    
-    habit = db.session.get(Habit, habit_id)
-    if not habit:
-        return "Habit not found", 404
-    
-    # Check if habit belongs to current user (allow None/0 for test compatibility)
-    current_user_id = session.get("user_id", 0)
-    if habit.user_id not in [None, 0, current_user_id]:
-        return "Unauthorized", 403
-    
+    habit = Habit.query.get_or_404(habit_id)
     db.session.delete(habit)
     db.session.commit()
     return redirect(url_for("habit_tracker"))
 
 
 # ============================================================================
-# YOUR ARCHIVE/UNARCHIVE CODE STARTS HERE
+# ARCHIVE AND UNARCHIVE FEATURE - YOUR CODE STARTS HERE
 # ============================================================================
 
-# Archive a habit
 @app.route("/habit-tracker/archive/<int:habit_id>", methods=["POST"])
 def archive_habit(habit_id):
     """Archive a habit"""
@@ -131,18 +116,12 @@ def archive_habit(habit_id):
     if not habit:
         return "Habit not found", 404
     
-    # Check if habit belongs to current user (allow None/0 for test compatibility)
-    current_user_id = session.get("user_id", 0)
-    if habit.user_id not in [None, 0, current_user_id]:
-        return "Unauthorized", 403
-    
     habit.is_archived = True
     habit.archived_at = datetime.now(timezone.utc)
     db.session.commit()
     return redirect(url_for("habit_tracker"))
 
 
-# Unarchive a habit
 @app.route("/habit-tracker/unarchive/<int:habit_id>", methods=["POST"])
 def unarchive_habit(habit_id):
     """Unarchive a habit"""
@@ -153,52 +132,35 @@ def unarchive_habit(habit_id):
     if not habit:
         return "Habit not found", 404
     
-    # Check if habit belongs to current user (allow None/0 for test compatibility)
-    current_user_id = session.get("user_id", 0)
-    if habit.user_id not in [None, 0, current_user_id]:
-        return "Unauthorized", 403
-    
     habit.is_archived = False
     habit.archived_at = None
     db.session.commit()
     return redirect(request.referrer or url_for("habit_tracker"))
 
 
-# View archived habits page
 @app.route("/habit-tracker/archived")
 def archived_habits():
     """View archived habits"""
     if not session.get("authenticated"):
         return redirect(url_for("signin"))
     
-    # Filter by user_id and archived status
-    user_id = session.get("user_id", 0)
-    habits = Habit.query.filter_by(
-        is_archived=True
-    ).filter(
-        (Habit.user_id == user_id) | (Habit.user_id == None) | (Habit.user_id == 0)
-    ).order_by(Habit.archived_at.desc()).all()
+    habits = Habit.query.filter_by(is_archived=True).order_by(Habit.archived_at.desc()).all()
     return render_template("apps/habit_tracker/archived.html", page_id="habit-tracker", habits=habits)
 
-# ============================================================================
-# YOUR ARCHIVE/UNARCHIVE CODE ENDS HERE
-# ============================================================================
 
 
+# test change
 @app.route("/logout")
 def logout():
-    """Logout and clear session"""
     session.clear()
     return redirect(url_for("home"))
 
 
 def init_db():
-    """Initialize database"""
     with app.app_context():
         db.create_all()
 
 
 if __name__ == "__main__":
-    if not os.path.exists("instance/app.db"):
+    if not os.path.exists("app.db"):
         init_db()
-    app.run(debug=True)
