@@ -392,9 +392,6 @@ def test_habit_tracker_page_shows_only_active(logged_in_client, app):
     assert 'Old Habit' not in html
 
 
-# ============================================================================
-# YOUR TESTS END HERE
-# ============================================================================
 
 
 # === Parametrized Tests ===
