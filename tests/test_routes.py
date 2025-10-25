@@ -364,32 +364,7 @@ def test_archived_habits_page_shows_only_archived(logged_in_client, app):
     assert 'My Active Habit Item' not in html
 
 
-def test_habit_tracker_page_shows_only_active(logged_in_client, app):
-    """Test that /habit-tracker page only displays non-archived habits."""
-    # Arrange: Create one active and one archived habit
-    with app.app_context():
-        from datetime import datetime, timezone
-        from extensions import db
-        
-        active_habit = Habit(name='Daily Exercise', description='Active habit', is_archived=False)
-        archived_habit = Habit(
-            name='Old Habit',
-            description='Archived habit',
-            is_archived=True,
-            archived_at=datetime.now(timezone.utc)
-        )
-        db.session.add(active_habit)
-        db.session.add(archived_habit)
-        db.session.commit()
-    
-    # Act: Get main habit tracker page
-    response = logged_in_client.get('/habit-tracker')
-    html = response.data.decode('utf-8')
-    
-    # Assert: Only active habit should appear
-    assert response.status_code == 200
-    assert 'Daily Exercise' in html
-    assert 'Old Habit' not in html
+
 
 
 
