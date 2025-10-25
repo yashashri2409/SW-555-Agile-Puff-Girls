@@ -102,9 +102,7 @@ def delete_habit(habit_id):
     return redirect(url_for("habit_tracker"))
 
 
-# ============================================================================
-# ARCHIVE AND UNARCHIVE FEATURE - YOUR CODE STARTS HERE
-# ============================================================================
+
 
 @app.route("/habit-tracker/archive/<int:habit_id>", methods=["POST"])
 def archive_habit(habit_id):
@@ -164,3 +162,4 @@ def init_db():
 if __name__ == "__main__":
     if not os.path.exists("app.db"):
         init_db()
+    app.run(debug=True)

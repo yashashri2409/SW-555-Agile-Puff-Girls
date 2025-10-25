@@ -221,9 +221,7 @@ def test_habit_dashboard_displays_category(logged_in_client, app):
     assert "Mindfulness" in html  # category shown on the dashboard
 
 
-# ============================================================================
-# ARCHIVE/UNARCHIVE FEATURE TESTS - YOUR TESTS START HERE
-# ============================================================================
+
 
 
 def test_archive_habit_success(logged_in_client, app):
