@@ -34,3 +34,4 @@ def test_habit_allows_optional_description(app):
     stored = Habit.query.first()
     assert stored is not None
     assert stored.description is None
+    assert stored.description is None

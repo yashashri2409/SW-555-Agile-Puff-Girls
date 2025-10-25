@@ -21,6 +21,9 @@ CATEGORIES = [
 ]
 
 @app.route('/')
+
+
+
 def home():
     """Landing page"""
     return render_template("home/index.html")
@@ -71,6 +74,10 @@ def habit_tracker():
         description = request.form.get("description", "").strip()
         category = request.form.get('category', '').strip()
         
+        if category == 'other':
+            category = request.form.get('category_custom', '').strip()
+
+        category = request.form.get('category', '').strip()
         if category == 'other':
             category = request.form.get('category_custom', '').strip()
 

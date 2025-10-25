@@ -9,6 +9,8 @@ class Habit(db.Model):
     description = db.Column(db.Text)
     category = db.Column(db.String(50))
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    category = db.Column(db.String(60))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_dates = db.Column(db.Text)
     user_id = db.Column(db.Integer, nullable=True, default=0)
     is_archived = db.Column(db.Boolean, default=False)
