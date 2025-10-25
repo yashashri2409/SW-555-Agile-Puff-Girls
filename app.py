@@ -76,8 +76,6 @@ def habit_tracker():
         
         if category == 'other':
             category = request.form.get('category_custom', '').strip()
-
-        category = request.form.get('category', '').strip()
         if category == 'other':
             category = request.form.get('category_custom', '').strip()
 
@@ -92,7 +90,8 @@ def habit_tracker():
 
         return redirect(url_for("habit_tracker"))
 
-    habits = Habit.query.order_by(Habit.created_at.desc()).all()
+    habits = Habit.query.filter_by(is_archived=False).order_by(Habit.created_at.desc()).all()
+
     return render_template(
         'apps/habit_tracker/index.html',
         page_id='habit-tracker',
@@ -121,7 +120,7 @@ def archive_habit(habit_id):
         return "Habit not found", 404
     
     habit.is_archived = True
-    habit.archived_at = datetime.now(timezone.utc)
+    habit.archived_at = datetime.utcnow()
     db.session.commit()
     return redirect(url_for("habit_tracker"))
 
