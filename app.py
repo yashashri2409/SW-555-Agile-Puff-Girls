@@ -103,7 +103,6 @@ def delete_habit(habit_id):
 
 
 
-
 @app.route("/habit-tracker/archive/<int:habit_id>", methods=["POST"])
 def archive_habit(habit_id):
     """Archive a habit"""
