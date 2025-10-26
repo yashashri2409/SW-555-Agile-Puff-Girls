@@ -92,6 +92,24 @@ All user stories, sprint tasks, and progress tracking are managed on our Trello 
 
 ---
 
+## Contributing
+
+We follow a structured Git workflow with three branches:
+
+**Feature Branches → Develop → Main**
+
+- `main` - Production-ready code
+- `develop` - Integration and testing branch
+- `feat/*` - Individual feature branches
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on:
+- How to create feature branches
+- Pull request process
+- Code review requirements
+- Testing standards
+
+---
+
 ## License
 
 Distributed under the **MIT License**.
