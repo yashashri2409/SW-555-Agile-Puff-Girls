@@ -169,7 +169,6 @@ def test_habit_tracker_delete_invalid_id_returns_404(client):
     assert response.status_code == 404
 
 
-# ✅ KEEP - Category tests (teammate's work)
 def test_habit_tracker_post_saves_predefined_category(logged_in_client, app):
     """Selecting a predefined category stores it on the Habit."""
     form = {
@@ -220,7 +219,6 @@ def test_habit_dashboard_displays_category(logged_in_client, app):
     assert "Mindfulness" in html
 
 
-# ✨ NEW - Archive tests (your US3 work)
 def test_archive_habit_success(logged_in_client, app):
     """Test that POST /habit-tracker/archive/<id> archives a habit successfully."""
     with app.app_context():
