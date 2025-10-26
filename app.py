@@ -70,9 +70,9 @@ def habit_tracker():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
-        # ✅ KEEP - Category handling (teammate's work)
-        category = request.form.get('category', '').strip()
         
+       
+        category = request.form.get('category', '').strip() 
         if category == 'other':
             category = request.form.get('category_custom', '').strip()
 
@@ -80,7 +80,7 @@ def habit_tracker():
             habit = Habit(
                 name=name,
                 description=description or None,
-                category=(category or None)  # ✅ KEEP - Category field
+                category=(category or None)  
             )
             db.session.add(habit)
             db.session.commit()
