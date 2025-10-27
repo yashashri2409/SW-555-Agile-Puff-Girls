@@ -169,7 +169,6 @@ def test_habit_tracker_delete_invalid_id_returns_404(client):
     assert response.status_code == 404
 
 
-# ✨ ARCHIVE TESTS (US3) - Keep these ✨
 
 def test_archive_habit_success(logged_in_client, app):
     """Test that POST /habit-tracker/archive/<id> archives a habit successfully."""

@@ -15,7 +15,6 @@ db.init_app(app)
 # Store OTPs temporarily
 otp_store = {}
 
-
 CATEGORIES = [
     "Health", "Fitness", "Study", "Productivity",
     "Mindfulness", "Finance", "Social", "Chores"
@@ -70,9 +69,8 @@ def habit_tracker():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
+        category = request.form.get('category', '').strip()
         
-       
-        category = request.form.get('category', '').strip() 
         if category == 'other':
             category = request.form.get('category_custom', '').strip()
 
@@ -80,7 +78,7 @@ def habit_tracker():
             habit = Habit(
                 name=name,
                 description=description or None,
-                category=(category or None)  
+                category=(category or None)  # safe if empty
             )
             db.session.add(habit)
             db.session.commit()
@@ -94,7 +92,7 @@ def habit_tracker():
         'apps/habit_tracker/index.html',
         page_id='habit-tracker',
         habits=habits,
-        categories=CATEGORIES  
+        categories=CATEGORIES
     )
 
 
@@ -104,6 +102,7 @@ def delete_habit(habit_id):
     db.session.delete(habit)
     db.session.commit()
     return redirect(url_for("habit_tracker"))
+
 
 
 
@@ -147,6 +146,8 @@ def archived_habits():
     
     habits = Habit.query.filter_by(is_archived=True).order_by(Habit.archived_at.desc()).all()
     return render_template("apps/habit_tracker/archived.html", page_id="habit-tracker", habits=habits)
+
+
 
 
 # test change
