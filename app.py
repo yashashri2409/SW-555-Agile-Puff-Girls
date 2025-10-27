@@ -85,7 +85,6 @@ def habit_tracker():
 
         return redirect(url_for("habit_tracker"))
 
-    
     habits = Habit.query.filter_by(is_archived=False).order_by(Habit.created_at.desc()).all()
 
     return render_template(
@@ -102,7 +101,6 @@ def delete_habit(habit_id):
     db.session.delete(habit)
     db.session.commit()
     return redirect(url_for("habit_tracker"))
-
 
 
 
@@ -146,7 +144,6 @@ def archived_habits():
     
     habits = Habit.query.filter_by(is_archived=True).order_by(Habit.archived_at.desc()).all()
     return render_template("apps/habit_tracker/archived.html", page_id="habit-tracker", habits=habits)
-
 
 
 
