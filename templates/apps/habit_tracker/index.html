@@ -4,8 +4,49 @@
 
 {% block extra_head %}
 <style>
-    .habit-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Dark mode adaptations */
+    [data-theme="dark"] select,
+    [data-theme="dark"] input,
+    [data-theme="dark"] textarea {
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+    
+    [data-theme="dark"] select option {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .bg-white {
+        background-color: var(--bg-primary);
+    }
+
+    [data-theme="dark"] .text-gray-900 {
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .text-gray-600,
+    [data-theme="dark"] .text-gray-500,
+    [data-theme="dark"] .text-gray-400 {
+        color: var(--text-secondary);
+    }
+
+    [data-theme="dark"] .border-gray-100 {
+        border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .hover\:border-purple-200:hover {
+        border-color: rgba(167, 139, 250, 0.3);
+    }
+
+    [data-theme="dark"] .hover\:bg-gradient-to-r:hover {
+        background: var(--bg-secondary);
+    }
+
+    [data-theme="dark"] .bg-gradient-to-r.from-purple-50.to-indigo-50 {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
     }
 </style>
 {% endblock %}
@@ -137,23 +178,19 @@
                         </p>
                     {% endif %}
                     <div class="flex gap-3 ml-6">
-                    
-                    {% if habit.category %}
-                        <span class="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-100 px-3 py-1 rounded-full">
-                        {{ habit.category }}
+                        {% if habit.category %}
+                            <span class="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-100 px-3 py-1 rounded-full">
+                            {{ habit.category }}
+                            </span>
+                        {% endif %}
+
+                        <span class="inline-flex items-center gap-1 text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full">
+                            🔥 0 day streak
                         </span>
-                    {% endif %}
-
-                    <span class="inline-flex items-center gap-1 text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full">
-                        🔥 0 day streak
-                    </span>
-                    <span class="inline-flex items-center text-xs font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full">
-                        0% this week
-                    </span>
+                        <span class="inline-flex items-center text-xs font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full">
+                            0% this week
+                        </span>
                     </div>
-
-                    <div class="flex gap-3 ml-6">
-
                 </div>
                 {% endfor %}
             </div>
