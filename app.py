@@ -29,12 +29,7 @@ CATEGORIES = [
     "Chores",
 ]
 
-<<<<<<< HEAD
-
 @app.route("/")
-=======
-@app.route('/')
->>>>>>> 35e09164a563985f602da93b4532e4e54108bbd7
 def home():
     """Landing page"""
     return render_template("home/index.html")
@@ -83,17 +78,9 @@ def habit_tracker():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
-<<<<<<< HEAD
-
         category = request.form.get("category", "").strip()
         if category == "other":
             category = request.form.get("category_custom", "").strip()
-=======
-        category = request.form.get('category', '').strip()
-        
-        if category == 'other':
-            category = request.form.get('category_custom', '').strip()
->>>>>>> 35e09164a563985f602da93b4532e4e54108bbd7
 
         if name:
             habit = Habit(
