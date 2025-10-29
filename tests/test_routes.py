@@ -167,21 +167,13 @@ def test_habit_tracker_delete_invalid_id_returns_404(client):
     assert response.status_code == 404
 
 
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 35e09164a563985f602da93b4532e4e54108bbd7
 def test_habit_tracker_post_saves_predefined_category(logged_in_client, app):
     """Selecting a predefined category stores it on the Habit."""
     form = {
         "name": "Read 10 pages",
         "description": "Night routine",
-<<<<<<< HEAD
-        "category": "Fitness",  # one of the predefined categories
-=======
-        "category": "Fitness"
->>>>>>> 35e09164a563985f602da93b4532e4e54108bbd7
+        "category": "Fitness"  # one of the predefined categories
     }
     resp = logged_in_client.post("/habit-tracker", data=form, follow_redirects=False)
     assert resp.status_code == 302 and resp.location == "/habit-tracker"
@@ -211,16 +203,12 @@ def test_habit_tracker_post_uses_category_custom_when_other_selected(logged_in_c
 
 def test_habit_dashboard_displays_category(logged_in_client, app):
     """After creating a habit with a category, the /habit-tracker page shows that category text."""
-<<<<<<< HEAD
     # Create a habit with a category
-    form = {"name": "Meditation", "description": "Mindful breathing", "category": "Mindfulness"}
-=======
     form = {
         "name": "Meditation",
         "description": "Mindful breathing",
         "category": "Mindfulness"
     }
->>>>>>> 35e09164a563985f602da93b4532e4e54108bbd7
     create_resp = logged_in_client.post("/habit-tracker", data=form, follow_redirects=False)
     assert create_resp.status_code == 302
 
