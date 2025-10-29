@@ -113,6 +113,54 @@
             </div>
         </div>
 
+                        <!-- Multi-filter panel: Category (checkboxes) -->
+            <details class="mb-4 bg-white border border-gray-200 rounded-lg">
+            <summary class="cursor-pointer select-none px-4 py-2 flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-700">Filter</span>
+                <span class="text-xs text-gray-500">
+                {% if selected_categories and selected_categories|length > 0 %}
+                    {{ selected_categories|length }} active
+                {% else %}
+                    none
+                {% endif %}
+                </span>
+            </summary>
+
+            <form method="GET" action="/habit-tracker" class="px-4 pb-4 pt-2">
+                <!-- Category section -->
+                <div class="mb-3">
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Category</div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {% for cat in categories %}
+                    <label class="flex items-center gap-2 text-sm text-gray-700 border border-gray-200 rounded-md px-2 py-1">
+                        <input
+                        type="checkbox"
+                        name="category"
+                        value="{{ cat }}"
+                        {% if selected_categories and (cat in selected_categories) %}checked{% endif %}
+                        class="rounded border-gray-300"
+                        />
+                        <span>{{ cat }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                </div>
+
+                <div class="flex gap-3 mt-3">
+                <button type="submit"
+                        class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700">
+                    Apply
+                </button>
+                <a href="/habit-tracker"
+                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
+                    Clear all
+                </a>
+                </div>
+            </form>
+            </details>
+
+
+
         {% if habits %}
             <div class="space-y-3 max-h-96 overflow-y-auto">
                 {% for habit in habits %}
@@ -178,7 +226,14 @@
                 <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-full mb-4">
                     <span class="text-2xl">🌱</span>
                 </div>
-                <p class="text-gray-500 mb-2">No habits yet</p>
+                    <p class="text-gray-500 mb-2">
+                    {% if selected_categories and selected_categories|length > 0 %}
+                        No habits in {{ selected_categories|join(', ') }}
+                    {% else %}
+                        No habits yet
+                    {% endif %}
+                    </p>
+
                 <p class="text-sm text-gray-400">Plant your first habit seed and watch it grow into a consistent routine.</p>
             </div>
         {% endif %}
