@@ -1,5 +1,6 @@
 import os
 import random
+from datetime import datetime
 
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 
@@ -12,7 +13,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
-
 
 # Store OTPs temporarily
 otp_store = {}
@@ -78,8 +78,8 @@ def habit_tracker():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
-
         category = request.form.get("category", "").strip()
+
         if category == "other":
             category = request.form.get("category_custom", "").strip()
 
@@ -94,7 +94,8 @@ def habit_tracker():
 
         return redirect(url_for("habit_tracker"))
 
-    habits = Habit.query.order_by(Habit.created_at.desc()).all()
+    habits = Habit.query.filter_by(is_archived=False).order_by(Habit.created_at.desc()).all()
+
     return render_template(
         "apps/habit_tracker/index.html",
         page_id="habit-tracker",
@@ -125,6 +126,50 @@ def update_habit(habit_id):
         db.session.commit()
 
     return redirect(url_for("habit_tracker"))
+
+
+@app.route("/habit-tracker/archive/<int:habit_id>", methods=["POST"])
+def archive_habit(habit_id):
+    """Archive a habit"""
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
+
+    habit = db.session.get(Habit, habit_id)
+    if not habit:
+        return "Habit not found", 404
+
+    habit.is_archived = True
+    habit.archived_at = datetime.utcnow()
+    db.session.commit()
+    return redirect(url_for("habit_tracker"))
+
+
+@app.route("/habit-tracker/unarchive/<int:habit_id>", methods=["POST"])
+def unarchive_habit(habit_id):
+    """Unarchive a habit"""
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
+
+    habit = db.session.get(Habit, habit_id)
+    if not habit:
+        return "Habit not found", 404
+
+    habit.is_archived = False
+    habit.archived_at = None
+    db.session.commit()
+    return redirect(request.referrer or url_for("habit_tracker"))
+
+
+@app.route("/habit-tracker/archived")
+def archived_habits():
+    """View archived habits"""
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
+
+    habits = Habit.query.filter_by(is_archived=True).order_by(Habit.archived_at.desc()).all()
+    return render_template(
+        "apps/habit_tracker/archived.html", page_id="habit-tracker", habits=habits
+    )
 
 
 # test change
