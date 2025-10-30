@@ -168,12 +168,96 @@ def test_habit_tracker_delete_invalid_id_returns_404(client):
     # Assert
     assert response.status_code == 404
 
+
+def test_habit_tracker_update_changes_name(logged_in_client, app):
+    """Test that POST /habit-tracker/update/<id> updates the habit name."""
+    # Arrange
+    with app.app_context():
+        habit = Habit(name="Old Habit Name", description="Test description")
+        from extensions import db
+
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    # Act
+    response = logged_in_client.post(
+        f"/habit-tracker/update/{habit_id}",
+        data={"name": "Updated Habit Name"},
+        follow_redirects=False,
+    )
+
+    # Assert
+    assert response.status_code == 302
+    assert response.location == "/habit-tracker"
+    with app.app_context():
+        updated_habit = Habit.query.filter_by(id=habit_id).first()
+        assert updated_habit is not None
+        assert updated_habit.name == "Updated Habit Name"
+        assert updated_habit.description == "Test description"
+
+
+def test_habit_tracker_update_requires_auth(client, app):
+    """Test that update requires authentication."""
+    # Arrange
+    with app.app_context():
+        habit = Habit(name="Test Habit")
+        from extensions import db
+
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    # Act
+    response = client.post(
+        f"/habit-tracker/update/{habit_id}", data={"name": "New Name"}, follow_redirects=False
+    )
+
+    # Assert
+    assert response.status_code == 302
+    assert response.location == "/signin"
+
+
+def test_habit_tracker_update_invalid_id_returns_404(logged_in_client):
+    """Test that POST /habit-tracker/update/<invalid_id> returns 404."""
+    # Act
+    response = logged_in_client.post(
+        "/habit-tracker/update/99999", data={"name": "New Name"}, follow_redirects=False
+    )
+
+    # Assert
+    assert response.status_code == 404
+
+
+def test_habit_tracker_update_empty_name_does_not_update(logged_in_client, app):
+    """Test that submitting empty name does not update the habit."""
+    # Arrange
+    with app.app_context():
+        habit = Habit(name="Original Name")
+        from extensions import db
+
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    # Act
+    response = logged_in_client.post(
+        f"/habit-tracker/update/{habit_id}", data={"name": "   "}, follow_redirects=False
+    )
+
+    # Assert
+    assert response.status_code == 302
+    with app.app_context():
+        habit = Habit.query.filter_by(id=habit_id).first()
+        assert habit.name == "Original Name"
+
+
 def test_habit_tracker_post_saves_predefined_category(logged_in_client, app):
     """Selecting a predefined category stores it on the Habit."""
     form = {
         "name": "Read 10 pages",
         "description": "Night routine",
-        "category": "Fitness"  # one of the predefined categories
+        "category": "Fitness",  # one of the predefined categories
     }
     resp = logged_in_client.post("/habit-tracker", data=form, follow_redirects=False)
     assert resp.status_code == 302 and resp.location == "/habit-tracker"
@@ -182,13 +266,15 @@ def test_habit_tracker_post_saves_predefined_category(logged_in_client, app):
         stored = Habit.query.filter_by(name="Read 10 pages").first()
         assert stored is not None
         assert stored.category == "Fitness"
+
+
 def test_habit_tracker_post_uses_category_custom_when_other_selected(logged_in_client, app):
     """If category=='other', the value from category_custom is stored."""
     form = {
         "name": "Evening Walk",
         "description": "30 mins",
         "category": "other",
-        "category_custom": "Wellness"
+        "category_custom": "Wellness",
     }
     resp = logged_in_client.post("/habit-tracker", data=form, follow_redirects=False)
     assert resp.status_code == 302 and resp.location == "/habit-tracker"
@@ -197,14 +283,12 @@ def test_habit_tracker_post_uses_category_custom_when_other_selected(logged_in_c
         stored = Habit.query.filter_by(name="Evening Walk").first()
         assert stored is not None
         assert stored.category == "Wellness"
+
+
 def test_habit_dashboard_displays_category(logged_in_client, app):
     """After creating a habit with a category, the /habit-tracker page shows that category text."""
     # Create a habit with a category
-    form = {
-        "name": "Meditation",
-        "description": "Mindful breathing",
-        "category": "Mindfulness"
-    }
+    form = {"name": "Meditation", "description": "Mindful breathing", "category": "Mindfulness"}
     create_resp = logged_in_client.post("/habit-tracker", data=form, follow_redirects=False)
     assert create_resp.status_code == 302
 

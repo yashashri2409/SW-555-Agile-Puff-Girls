@@ -18,13 +18,18 @@ db.init_app(app)
 otp_store = {}
 
 CATEGORIES = [
-    "Health", "Fitness", "Study", "Productivity",
-    "Mindfulness", "Finance", "Social", "Chores"
+    "Health",
+    "Fitness",
+    "Study",
+    "Productivity",
+    "Mindfulness",
+    "Finance",
+    "Social",
+    "Chores",
 ]
 
 
-@app.route('/')
-
+@app.route("/")
 def home():
     """Landing page"""
     return render_template("home/index.html")
@@ -74,15 +79,15 @@ def habit_tracker():
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
 
-        category = request.form.get('category', '').strip()
-        if category == 'other':
-            category = request.form.get('category_custom', '').strip()
+        category = request.form.get("category", "").strip()
+        if category == "other":
+            category = request.form.get("category_custom", "").strip()
 
         if name:
             habit = Habit(
                 name=name,
                 description=description or None,
-                category=(category or None)  # safe if empty
+                category=(category or None),  # safe if empty
             )
             db.session.add(habit)
             db.session.commit()
@@ -91,10 +96,10 @@ def habit_tracker():
 
     habits = Habit.query.order_by(Habit.created_at.desc()).all()
     return render_template(
-        'apps/habit_tracker/index.html',
-        page_id='habit-tracker',
+        "apps/habit_tracker/index.html",
+        page_id="habit-tracker",
         habits=habits,
-        categories=CATEGORIES
+        categories=CATEGORIES,
     )
 
 
@@ -103,6 +108,22 @@ def delete_habit(habit_id):
     habit = Habit.query.get_or_404(habit_id)
     db.session.delete(habit)
     db.session.commit()
+    return redirect(url_for("habit_tracker"))
+
+
+@app.route("/habit-tracker/update/<int:habit_id>", methods=["POST"])
+def update_habit(habit_id):
+    """Update habit name"""
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
+
+    habit = Habit.query.get_or_404(habit_id)
+    new_name = request.form.get("name", "").strip()
+
+    if new_name:
+        habit.name = new_name
+        db.session.commit()
+
     return redirect(url_for("habit_tracker"))
 
 

@@ -111,14 +111,43 @@
                 {% for habit in habits %}
                 <div class="group p-4 rounded-lg border border-gray-100 hover:border-purple-200 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 transition-all duration-200">
                     <div class="flex items-start justify-between mb-2">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 flex-1">
                             <span class="text-purple-600">✓</span>
-                            <span class="font-medium text-gray-900 group-hover:text-purple-700">{{ habit.name }}</span>
+                            <span class="font-medium text-gray-900 group-hover:text-purple-700 habit-name-display-{{ habit.id }}">{{ habit.name }}</span>
+                            <form method="POST" action="/habit-tracker/update/{{ habit.id }}" class="hidden habit-edit-form-{{ habit.id }} flex-1">
+                                <input type="text" name="name" value="{{ habit.name }}"
+                                    class="w-full px-2 py-1 border border-purple-300 rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    required>
+                            </form>
                         </div>
                         <div class="flex items-center gap-2">
                             <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                 {{ habit.created_at.strftime('%b %d') }}
                             </span>
+                            <button type="button"
+                                class="text-blue-400 hover:text-blue-600 transition-colors duration-200 opacity-0 group-hover:opacity-100 habit-edit-btn-{{ habit.id }}"
+                                onclick="toggleEditMode({{ habit.id }})"
+                                title="Edit habit name">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button type="button"
+                                class="hidden text-green-400 hover:text-green-600 transition-colors duration-200 habit-save-btn-{{ habit.id }}"
+                                onclick="saveEdit({{ habit.id }})"
+                                title="Save changes">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                            <button type="button"
+                                class="hidden text-gray-400 hover:text-gray-600 transition-colors duration-200 habit-cancel-btn-{{ habit.id }}"
+                                onclick="cancelEdit({{ habit.id }})"
+                                title="Cancel">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
                             <form method="POST" action="/habit-tracker/delete/{{ habit.id }}" class="inline">
                                 <button type="submit"
                                     class="text-red-400 hover:text-red-600 transition-colors duration-200 opacity-0 group-hover:opacity-100"
@@ -199,6 +228,43 @@
     selectEl.addEventListener('change', toggleCustom);
     toggleCustom();
   })();
+
+  function toggleEditMode(habitId) {
+    const nameDisplay = document.querySelector('.habit-name-display-' + habitId);
+    const editForm = document.querySelector('.habit-edit-form-' + habitId);
+    const editBtn = document.querySelector('.habit-edit-btn-' + habitId);
+    const saveBtn = document.querySelector('.habit-save-btn-' + habitId);
+    const cancelBtn = document.querySelector('.habit-cancel-btn-' + habitId);
+
+    nameDisplay.classList.add('hidden');
+    editForm.classList.remove('hidden');
+    editBtn.classList.add('hidden');
+    saveBtn.classList.remove('hidden');
+    cancelBtn.classList.remove('hidden');
+
+    const input = editForm.querySelector('input[name="name"]');
+    input.focus();
+    input.select();
+  }
+
+  function cancelEdit(habitId) {
+    const nameDisplay = document.querySelector('.habit-name-display-' + habitId);
+    const editForm = document.querySelector('.habit-edit-form-' + habitId);
+    const editBtn = document.querySelector('.habit-edit-btn-' + habitId);
+    const saveBtn = document.querySelector('.habit-save-btn-' + habitId);
+    const cancelBtn = document.querySelector('.habit-cancel-btn-' + habitId);
+
+    nameDisplay.classList.remove('hidden');
+    editForm.classList.add('hidden');
+    editBtn.classList.remove('hidden');
+    saveBtn.classList.add('hidden');
+    cancelBtn.classList.add('hidden');
+  }
+
+  function saveEdit(habitId) {
+    const editForm = document.querySelector('.habit-edit-form-' + habitId);
+    editForm.submit();
+  }
 </script>
 {% endblock %}
 
