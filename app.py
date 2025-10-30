@@ -20,6 +20,24 @@ CATEGORIES = [
     "Mindfulness", "Finance", "Social", "Chores"
 ]
 
+def get_active_categories():
+    """
+    Return built-in categories + any *custom* categories that actually exist
+    on active (non-archived) habits. Deduped; built-ins first, customs A-Z.
+    """
+    rows = (
+        db.session.query(Habit.category)
+        .filter(Habit.is_archived.is_(False), Habit.category.isnot(None))
+        .distinct()
+        .all()
+    )
+    existing = [r[0] for r in rows if r[0]]
+    merged = CATEGORIES[:]  # keep default order first
+    for c in sorted(set(existing) - set(CATEGORIES), key=str.lower):
+        merged.append(c)
+    return merged
+
+
 @app.route('/')
 def home():
     """Landing page"""
@@ -85,14 +103,24 @@ def habit_tracker():
 
         return redirect(url_for("habit_tracker"))
 
-    habits = Habit.query.filter_by(is_archived=False).order_by(Habit.created_at.desc()).all()
+           # ---- Filtering (GET) ----
+    # Multi-select support: /habit-tracker?category=Health&category=Chores
+    selected_categories = [c.strip() for c in request.args.getlist("category") if c.strip()]
+
+    q = Habit.query.filter_by(is_archived=False)
+    if selected_categories:
+        q = q.filter(Habit.category.in_(selected_categories))
+
+    habits = q.order_by(Habit.created_at.desc()).all()
 
     return render_template(
-        'apps/habit_tracker/index.html',
-        page_id='habit-tracker',
+        "apps/habit_tracker/index.html",
+        page_id="habit-tracker",
         habits=habits,
-        categories=CATEGORIES
+        categories=get_active_categories(),  # includes customs
+        selected_categories=selected_categories,
     )
+
 
 
 @app.route("/habit-tracker/delete/<int:habit_id>", methods=["POST"])

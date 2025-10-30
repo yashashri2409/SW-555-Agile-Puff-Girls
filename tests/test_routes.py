@@ -218,6 +218,63 @@ def test_habit_dashboard_displays_category(logged_in_client, app):
     assert "Meditation" in html
     assert "Mindfulness" in html
 
+def test_filter_by_single_category_shows_only_that_category(logged_in_client, app):
+    """GET /habit-tracker?category=Study shows only 'Study' habits."""
+    from extensions import db
+    with app.app_context():
+        db.session.add(Habit(name="Read Paper", description="30 mins", category="Study"))
+        db.session.add(Habit(name="Pushups", description="10 reps", category="Fitness"))
+        db.session.add(Habit(name="Sleep Early", description="lights off", category="Health"))
+        db.session.commit()
+
+    resp = logged_in_client.get("/habit-tracker?category=Study")
+    html = resp.data.decode("utf-8")
+    assert resp.status_code == 200
+    assert "Read Paper" in html         # Study
+    assert "Pushups" not in html        # Fitness should be filtered out
+    assert "Sleep Early" not in html    # Health should be filtered out
+
+
+def test_filter_by_multiple_categories_union(logged_in_client, app):
+    """GET /habit-tracker?category=Health&category=Fitness returns Health ∪ Fitness (not others)."""
+    from extensions import db
+    with app.app_context():
+        db.session.add(Habit(name="Morning Run", description="cardio", category="Fitness"))
+        db.session.add(Habit(name="Meditate", description="breathing", category="Mindfulness"))
+        db.session.add(Habit(name="8h Sleep", description="rest", category="Health"))
+        db.session.commit()
+
+    resp = logged_in_client.get("/habit-tracker?category=Health&category=Fitness")
+    html = resp.data.decode("utf-8")
+    assert resp.status_code == 200
+    # present (either Health or Fitness)
+    assert "Morning Run" in html
+    assert "8h Sleep" in html
+    # absent (Mindfulness not selected)
+    assert "Meditate" not in html
+
+
+def test_filter_includes_custom_category_and_filters(logged_in_client, app):
+    """Custom categories appear in the filter list and can be filtered."""
+    from extensions import db
+    with app.app_context():
+        db.session.add(Habit(name="Evening Walk", description="30 mins", category="Wellness"))  # custom
+        db.session.add(Habit(name="Budget Review", description="weekly", category="Finance"))
+        db.session.commit()
+
+    # 1) Page without filters should render checkbox option for custom category too
+    page = logged_in_client.get("/habit-tracker")
+    page_html = page.data.decode("utf-8")
+    assert page.status_code == 200
+    # The filter panel lists categories as checkbox inputs with value="..."
+    assert 'name="category"' in page_html and 'value="Wellness"' in page_html
+
+    # 2) Filtering by the custom category should only show that habit
+    filtered = logged_in_client.get("/habit-tracker?category=Wellness")
+    filtered_html = filtered.data.decode("utf-8")
+    assert filtered.status_code == 200
+    assert "Evening Walk" in filtered_html
+    assert "Budget Review" not in filtered_html
 
 
 def test_archive_habit_success(logged_in_client, app):
