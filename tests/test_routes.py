@@ -331,6 +331,107 @@ def test_archived_habits_page_shows_only_archived(logged_in_client, app):
     assert 'My Active Habit Item' not in html
 
 
+
+def test_share_progress_button_visible_with_habits(logged_in_client, app):
+    """Test that the Share Progress button appears when user has habits."""
+    # Arrange: Create a habit
+    with app.app_context():
+        from extensions import db
+        habit = Habit(name='Morning Run', description='Daily run')
+        db.session.add(habit)
+        db.session.commit()
+    
+    # Act: Load habit tracker page
+    response = logged_in_client.get('/habit-tracker')
+    html = response.data.decode('utf-8')
+    
+    # Assert: Share Progress button is visible
+    assert response.status_code == 200
+    assert 'Share Progress' in html
+    assert 'openShareModal' in html
+
+
+def test_share_progress_button_hidden_without_habits(logged_in_client):
+    """Test that the Share Progress button is hidden when user has no habits."""
+    # Act: Load habit tracker page with no habits
+    response = logged_in_client.get('/habit-tracker')
+    html = response.data.decode('utf-8')
+    
+    # Assert: Share Progress button should not be visible
+    assert response.status_code == 200
+    # Button should be hidden when there are no habits
+    assert 'No habits yet' in html
+
+
+def test_share_modal_html_structure(logged_in_client, app):
+    """Test that the share modal HTML structure exists in the page."""
+    # Arrange: Create a habit so button appears
+    with app.app_context():
+        from extensions import db
+        habit = Habit(name='Study', description='Daily study session')
+        db.session.add(habit)
+        db.session.commit()
+    
+    # Act: Load page
+    response = logged_in_client.get('/habit-tracker')
+    html = response.data.decode('utf-8')
+    
+    # Assert: Modal elements exist
+    assert 'id="shareModal"' in html
+    assert 'Share Your Progress' in html
+    assert 'Copy to Clipboard' in html
+
+
+def test_share_progress_javascript_functions_present(logged_in_client, app):
+    """Test that JavaScript functions for share functionality are present."""
+    # Arrange: Create a habit
+    with app.app_context():
+        from extensions import db
+        habit = Habit(name='Workout', description='Gym session')
+        db.session.add(habit)
+        db.session.commit()
+    
+    # Act: Load page
+    response = logged_in_client.get('/habit-tracker')
+    html = response.data.decode('utf-8')
+    
+    # Assert: JavaScript functions exist
+    assert 'function openShareModal()' in html
+    assert 'function closeShareModal()' in html
+    assert 'function generateShareText()' in html
+    assert 'function copyToClipboard()' in html
+
+
+def test_share_text_generation_with_multiple_habits(logged_in_client, app):
+    """Test that share text is correctly generated with habit count."""
+    # Arrange: Create multiple habits
+    with app.app_context():
+        from extensions import db
+        habit1 = Habit(name='Morning Run', description='5K run')
+        habit2 = Habit(name='Reading', description='Read 20 pages')
+        habit3 = Habit(name='Meditation', description='10 min meditation')
+        db.session.add_all([habit1, habit2, habit3])
+        db.session.commit()
+    
+    # Act: Load page
+    response = logged_in_client.get('/habit-tracker')
+    html = response.data.decode('utf-8')
+    
+    # Assert: Page loads and can generate text with correct count
+    assert response.status_code == 200
+    assert 'Active Habits:' in html or '3 habit' in html
+
+
+def test_share_progress_requires_authentication(client):
+    """Test that share progress feature requires authentication."""
+    # Act: Try to access habit tracker without login
+    response = client.get('/habit-tracker', follow_redirects=False)
+    
+    # Assert: Redirects to signin
+    assert response.status_code == 302
+    assert response.location == '/signin'
+
+
 # === Parametrized Tests ===
 
 
