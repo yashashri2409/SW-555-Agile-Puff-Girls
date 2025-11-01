@@ -124,6 +124,22 @@ def delete_habit(habit_id):
     return redirect(url_for("habit_tracker"))
 
 
+@app.route("/habit-tracker/update/<int:habit_id>", methods=["POST"])
+def update_habit(habit_id):
+    """Update habit name"""
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
+
+    habit = Habit.query.get_or_404(habit_id)
+    new_name = request.form.get("name", "").strip()
+
+    if new_name:
+        habit.name = new_name
+        db.session.commit()
+
+    return redirect(url_for("habit_tracker"))
+
+
 @app.route("/habit-tracker/archive/<int:habit_id>", methods=["POST"])
 def archive_habit(habit_id):
     """Archive a habit"""
