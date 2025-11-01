@@ -7,3 +7,5 @@ class Habit(db.Model):
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_dates = db.Column(db.Text)
+    completed = db.Column(db.Boolean, default=False)
+

@@ -75,3 +75,32 @@ def test_all_modules_get_returns_ok(logged_in_client, endpoint):
 
     # Assert
     assert response.status_code == 200
+
+# === Mark Habit as Complete Tests ===
+
+def test_habit_mark_complete_updates_status(logged_in_client, app):
+    """Test that marking a habit as complete updates its completion status in the database."""
+    from extensions import db
+    from models import Habit
+
+    # Arrange – create a habit first
+    with app.app_context():
+        habit = Habit(name='Drink Water', description='8 glasses per day', completed=False)
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    # Act – call the mark-complete route
+    response = logged_in_client.post(f'/habit-tracker/complete/{habit_id}', follow_redirects=False)
+
+    # Assert – check response and DB state
+    assert response.status_code == 302  # redirect after marking complete
+    with app.app_context():
+        updated_habit = Habit.query.get(habit_id)
+        assert updated_habit.completed is True
+
+
+def test_habit_mark_complete_invalid_id_returns_404(logged_in_client):
+    """Test that marking a non-existent habit returns 404."""
+    response = logged_in_client.post('/habit-tracker/complete/99999', follow_redirects=False)
+    assert response.status_code == 404
