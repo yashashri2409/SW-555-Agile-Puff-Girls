@@ -13,3 +13,5 @@ class Habit(db.Model):
     user_id = db.Column(db.Integer, nullable=True, default=0)
     is_archived = db.Column(db.Boolean, default=False)
     archived_at = db.Column(db.DateTime, nullable=True)
+    is_paused = db.Column(db.Boolean, default=False)
+    paused_at = db.Column(db.DateTime, nullable=True)
