@@ -18,11 +18,18 @@ db.init_app(app)
 otp_store = {}
 
 CATEGORIES = [
-    "Health", "Fitness", "Study", "Productivity",
-    "Mindfulness", "Finance", "Social", "Chores"
+    "Health",
+    "Fitness",
+    "Study",
+    "Productivity",
+    "Mindfulness",
+    "Finance",
+    "Social",
+    "Chores",
 ]
 
-@app.route('/')
+
+@app.route("/")
 def home():
     """Landing page"""
     return render_template("home/index.html")
@@ -80,20 +87,32 @@ def habit_tracker():
             habit = Habit(
                 name=name,
                 description=description or None,
-                category=(category or None)  # safe if empty
+                category=(category or None),  # safe if empty
             )
             db.session.add(habit)
             db.session.commit()
 
         return redirect(url_for("habit_tracker"))
 
-    habits = Habit.query.filter_by(is_archived=False).order_by(Habit.created_at.desc()).all()
+    # Get active habits (not archived and not paused)
+    habits = (
+        Habit.query.filter_by(is_archived=False, is_paused=False)
+        .order_by(Habit.created_at.desc())
+        .all()
+    )
+    # Get paused habits (not archived but paused)
+    paused_habits = (
+        Habit.query.filter_by(is_archived=False, is_paused=True)
+        .order_by(Habit.paused_at.desc())
+        .all()
+    )
 
     return render_template(
-        'apps/habit_tracker/index.html',
-        page_id='habit-tracker',
+        "apps/habit_tracker/index.html",
+        page_id="habit-tracker",
         habits=habits,
-        categories=CATEGORIES
+        paused_habits=paused_habits,
+        categories=CATEGORIES,
     )
 
 
@@ -104,6 +123,21 @@ def delete_habit(habit_id):
     db.session.commit()
     return redirect(url_for("habit_tracker"))
 
+
+@app.route("/habit-tracker/update/<int:habit_id>", methods=["POST"])
+def update_habit(habit_id):
+    """Update habit name"""
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
+
+    habit = Habit.query.get_or_404(habit_id)
+    new_name = request.form.get("name", "").strip()
+
+    if new_name:
+        habit.name = new_name
+        db.session.commit()
+
+    return redirect(url_for("habit_tracker"))
 
 
 @app.route("/habit-tracker/archive/<int:habit_id>", methods=["POST"])
@@ -138,6 +172,38 @@ def unarchive_habit(habit_id):
     return redirect(request.referrer or url_for("habit_tracker"))
 
 
+@app.route("/habit-tracker/pause/<int:habit_id>", methods=["POST"])
+def pause_habit(habit_id):
+    """Pause a habit"""
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
+
+    habit = db.session.get(Habit, habit_id)
+    if not habit:
+        return "Habit not found", 404
+
+    habit.is_paused = True
+    habit.paused_at = datetime.now(timezone.utc)
+    db.session.commit()
+    return redirect(url_for("habit_tracker"))
+
+
+@app.route("/habit-tracker/resume/<int:habit_id>", methods=["POST"])
+def resume_habit(habit_id):
+    """Resume a paused habit"""
+    if not session.get("authenticated"):
+        return redirect(url_for("signin"))
+
+    habit = db.session.get(Habit, habit_id)
+    if not habit:
+        return "Habit not found", 404
+
+    habit.is_paused = False
+    habit.paused_at = None
+    db.session.commit()
+    return redirect(request.referrer or url_for("habit_tracker"))
+
+
 @app.route("/habit-tracker/archived")
 def archived_habits():
     """View archived habits"""
@@ -147,6 +213,10 @@ def archived_habits():
     habits = Habit.query.filter_by(is_archived=True).order_by(Habit.archived_at.desc()).all()
     return render_template("apps/habit_tracker/archived.html", page_id="habit-tracker", habits=habits)
 
+    habits = Habit.query.filter_by(is_archived=True).order_by(Habit.archived_at.desc()).all()
+    return render_template(
+        "apps/habit_tracker/archived.html", page_id="habit-tracker", habits=habits
+    )
 
 
 # test change
