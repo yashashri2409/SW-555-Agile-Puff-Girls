@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Habit Tracker{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        // Apply theme immediately
+        (function() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.dataset.theme = theme;
+        })();
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --border-color: #e5e7eb;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1f2937;
+            --bg-secondary: #111827;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .bg-theme-primary { background-color: var(--bg-primary); }
+        .bg-theme-secondary { background-color: var(--bg-secondary); }
+        .text-theme-primary { color: var(--text-primary); }
+        .text-theme-secondary { color: var(--text-secondary); }
+        .border-theme { border-color: var(--border-color); }
+
+        input, select, textarea {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] input::placeholder,
+        [data-theme="dark"] textarea::placeholder {
+            color: var(--text-secondary);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body x-data="{ darkMode: localStorage.getItem('theme') === 'dark' }" class="min-h-screen flex flex-col">
+    <nav class="bg-theme-primary border-b border-theme sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="flex flex-col">
+                        <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Habit Tracker</span>
+                        <span class="text-xs text-theme-secondary">Build Better Habits</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-4">
+                    {% if request.endpoint != 'signin' %}
+                    <button
+                        @click="$dispatch('toggle-settings')"
+                        class="p-2 rounded-lg hover:bg-theme-secondary transition-colors"
+                        title="Settings"
+                    >
+                        <svg class="w-5 h-5 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 bg-theme-primary">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="bg-theme-primary border-t border-theme mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex justify-between items-center">
+                <p class="text-theme-secondary text-sm">© 2025 Habit Tracker app</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Settings Panel -->
+    <div
+        x-data="{ open: false }"
+        @toggle-settings.window="open = !open"
+        @keydown.escape.window="open = false"
+        x-show="open"
+        class="fixed inset-0 z-50"
+        x-cloak
+    >
+        <div class="absolute inset-0 bg-black bg-opacity-50" @click="open = false"></div>
+        
+        <div class="absolute right-0 top-0 h-full w-80 bg-theme-primary shadow-lg transform transition-transform duration-200"
+             :class="{ 'translate-x-0': open, 'translate-x-full': !open }">
+            <div class="p-4 border-b border-theme">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-theme-primary">Settings</h2>
+                    <button @click="open = false" class="text-theme-secondary hover:text-theme-primary">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-medium text-theme-primary">Dark Mode</h3>
+                        <p class="text-sm text-theme-secondary">Toggle dark theme</p>
+                    </div>
+                    <button
+                        @click="darkMode = !darkMode; 
+                                localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+                                document.documentElement.dataset.theme = darkMode ? 'dark' : 'light';
+                                fetch('/theme/toggle', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ theme: darkMode ? 'dark' : 'light' })
+                                })"
+                        class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                        :class="{ 'bg-purple-600': darkMode, 'bg-gray-200': !darkMode }"
+                        role="switch"
+                        :aria-checked="darkMode"
+                    >
+                        <span
+                            aria-hidden="true"
+                            class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                            :class="{ 'translate-x-5': darkMode, 'translate-x-0': !darkMode }"
+                        ></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

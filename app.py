@@ -4,16 +4,17 @@ from datetime import datetime, timezone
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 from extensions import db
 from models import Habit, ThemePreference
-from routes.theme import theme_bp
 
 app = Flask(__name__)
-# Register blueprints
-app.register_blueprint(theme_bp)
 app.config["SECRET_KEY"] = "dev-secret-key-change-in-production"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
+
+# Import blueprints after db initialization to avoid circular imports
+from routes.theme import theme_bp
+app.register_blueprint(theme_bp)
 
 # Store OTPs temporarily
 otp_store = {}
