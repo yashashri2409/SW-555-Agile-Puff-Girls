@@ -1,6 +1,6 @@
 import pytest
 
-from app import otp_store
+from app import db, otp_store
 from models import Habit
 
 # === Habit Tracker Tests ===
@@ -419,6 +419,160 @@ def test_archived_habits_page_shows_only_archived(logged_in_client, app):
     assert response.status_code == 200
     assert "My Archived Habit Item" in html
     assert "My Active Habit Item" not in html
+
+
+# === Pause/Resume Tests ===
+
+
+def test_pause_habit_success(logged_in_client, app):
+    """Test that POST /habit-tracker/pause/<id> pauses a habit successfully."""
+    with app.app_context():
+        habit = Habit(name="My Active Habit", description="Test habit")
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    response = logged_in_client.post(f"/habit-tracker/pause/{habit_id}", follow_redirects=False)
+
+    assert response.status_code == 302
+    assert response.location == "/habit-tracker"
+
+    with app.app_context():
+        paused_habit = Habit.query.filter_by(id=habit_id).first()
+        assert paused_habit is not None
+        assert paused_habit.is_paused is True
+        assert paused_habit.paused_at is not None
+
+
+def test_pause_habit_requires_auth(client, app):
+    """Test that pause requires authentication."""
+    with app.app_context():
+        habit = Habit(name="Test Habit")
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    response = client.post(f"/habit-tracker/pause/{habit_id}", follow_redirects=False)
+
+    assert response.status_code == 302
+    assert "/signin" in response.location
+
+
+def test_pause_habit_invalid_id_returns_404(logged_in_client):
+    """Test that POST /habit-tracker/pause/<invalid_id> returns 404."""
+    response = logged_in_client.post("/habit-tracker/pause/99999")
+    assert response.status_code == 404
+
+
+def test_resume_habit_success(logged_in_client, app):
+    """Test that POST /habit-tracker/resume/<id> resumes a paused habit successfully."""
+    from datetime import datetime, timezone
+
+    with app.app_context():
+        habit = Habit(
+            name="My Paused Habit",
+            description="Test habit",
+            is_paused=True,
+            paused_at=datetime.now(timezone.utc),
+        )
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    response = logged_in_client.post(f"/habit-tracker/resume/{habit_id}", follow_redirects=False)
+
+    assert response.status_code == 302
+
+    with app.app_context():
+        resumed_habit = Habit.query.filter_by(id=habit_id).first()
+        assert resumed_habit is not None
+        assert resumed_habit.is_paused is False
+        assert resumed_habit.paused_at is None
+
+
+def test_resume_habit_requires_auth(client, app):
+    """Test that resume requires authentication."""
+    from datetime import datetime, timezone
+
+    with app.app_context():
+        habit = Habit(name="Test Habit", is_paused=True, paused_at=datetime.now(timezone.utc))
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    response = client.post(f"/habit-tracker/resume/{habit_id}", follow_redirects=False)
+
+    assert response.status_code == 302
+    assert "/signin" in response.location
+
+
+def test_resume_habit_invalid_id_returns_404(logged_in_client):
+    """Test that POST /habit-tracker/resume/<invalid_id> returns 404."""
+    response = logged_in_client.post("/habit-tracker/resume/99999")
+    assert response.status_code == 404
+
+
+def test_habit_tracker_shows_paused_habits_separately(logged_in_client, app):
+    """Test that habit tracker page displays paused habits in separate section."""
+    from datetime import datetime, timezone
+
+    with app.app_context():
+        active_habit = Habit(name="Active Habit", is_paused=False)
+        paused_habit = Habit(
+            name="Paused Habit", is_paused=True, paused_at=datetime.now(timezone.utc)
+        )
+        db.session.add(active_habit)
+        db.session.add(paused_habit)
+        db.session.commit()
+
+    response = logged_in_client.get("/habit-tracker")
+    html = response.data.decode("utf-8")
+
+    assert response.status_code == 200
+    assert "Active Habit" in html
+    assert "Paused Habit" in html
+    assert "Paused Habits" in html
+
+
+def test_paused_habit_independent_of_archive(logged_in_client, app):
+    """Test that paused and archived habits are independent."""
+    from datetime import datetime, timezone
+
+    with app.app_context():
+        active_habit = Habit(name="ActiveHabit123", is_paused=False, is_archived=False)
+        paused_habit = Habit(
+            name="PausedHabit456",
+            is_paused=True,
+            is_archived=False,
+            paused_at=datetime.now(timezone.utc),
+        )
+        archived_habit = Habit(
+            name="ArchivedHabit789",
+            is_paused=False,
+            is_archived=True,
+            archived_at=datetime.now(timezone.utc),
+        )
+        paused_and_archived = Habit(
+            name="BothPausedArchived999",
+            is_paused=True,
+            is_archived=True,
+            paused_at=datetime.now(timezone.utc),
+            archived_at=datetime.now(timezone.utc),
+        )
+        db.session.add_all([active_habit, paused_habit, archived_habit, paused_and_archived])
+        db.session.commit()
+
+    response = logged_in_client.get("/habit-tracker")
+    html = response.data.decode("utf-8")
+
+    assert response.status_code == 200
+    # Active habits section should show only active
+    assert "ActiveHabit123" in html
+    # Paused habits section should show only paused (not archived)
+    assert "PausedHabit456" in html
+    # Archived and paused+archived should not be on main page
+    assert "ArchivedHabit789" not in html
+    assert "BothPausedArchived999" not in html
 
 
 # === Parametrized Tests ===
