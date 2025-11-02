@@ -1,3 +1,4 @@
+import json
 import os
 import random
 from datetime import datetime, timezone
@@ -5,7 +6,7 @@ from datetime import datetime, timezone
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 
 from extensions import db
-from models import Habit, ThemePreference
+from models import Habit
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "dev-secret-key-change-in-production"
@@ -14,9 +15,19 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
-# Import blueprints after db initialization to avoid circular imports
-from routes.theme import theme_bp
+# Add custom Jinja filters
+@app.template_filter('from_json')
+def from_json_filter(value):
+    try:
+        return json.loads(value)
+    except json.JSONDecodeError:
+        return []
+
+from routes.habits import habits_bp  # noqa: E402
+from routes.theme import theme_bp  # noqa: E402
+
 app.register_blueprint(theme_bp)
+app.register_blueprint(habits_bp)
 
 # Store OTPs temporarily
 otp_store = {}
@@ -82,15 +93,16 @@ def habit_tracker():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
-        category = request.form.get("category", "").strip()
-        if category == "other":
-            category = request.form.get("category_custom", "").strip()
+        category = request.form.get('category', '').strip()
+
+        if category == 'other':
+            category = request.form.get('category_custom', '').strip()
 
         if name:
             habit = Habit(
                 name=name,
                 description=description or None,
-                category=(category or None),  # safe if empty
+                category=(category or None),
             )
             db.session.add(habit)
             db.session.commit()
@@ -117,14 +129,6 @@ def habit_tracker():
         paused_habits=paused_habits,
         categories=CATEGORIES,
     )
-
-
-@app.route("/habit-tracker/update/<int:habit_id>", methods=["POST"])
-def dark_mode_toggle(habit_id):
-    habit = Habit.query.get_or_404(habit_id)
-    habit.completed = not habit.completed
-    db.session.commit()
-    return redirect(url_for("habit_tracker"))
 
 
 @app.route("/habit-tracker/delete/<int:habit_id>", methods=["POST"])
@@ -227,7 +231,6 @@ def archived_habits():
     )
 
 
-# test change
 @app.route("/logout")
 def logout():
     session.clear()

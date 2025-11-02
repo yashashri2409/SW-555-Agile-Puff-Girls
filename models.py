@@ -6,7 +6,7 @@ from extensions import db
 class ThemePreference(db.Model):
     """Model for storing user theme preferences."""
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(100), primary_key=True)  # Store email as ID
     preference = db.Column(db.String(10), default="light")  # 'light' or 'dark'
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

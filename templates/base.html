@@ -6,6 +6,11 @@
     <title>{% block title %}Habit Tracker{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Apply theme immediately to prevent flash
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
     <style>
         :root {
             --bg-primary: #ffffff;
@@ -27,6 +32,21 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-primary);
             color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark mode form elements */
+        [data-theme="dark"] input,
+        [data-theme="dark"] select,
+        [data-theme="dark"] textarea {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] input::placeholder,
+        [data-theme="dark"] textarea::placeholder {
+            color: var(--text-secondary);
         }
 
         .bg-theme-primary { background-color: var(--bg-primary); }
@@ -190,23 +210,56 @@
     </div>
 
     <script>
-        // Dark mode functionality
-        function toggleDarkMode() {
-            const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-            document.documentElement.setAttribute('data-theme', isDarkMode ? 'light' : 'dark');
-            localStorage.setItem('theme', isDarkMode ? 'light' : 'dark');
+        // Theme management
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            document.getElementById('darkModeToggle').checked = theme === 'dark';
+            localStorage.setItem('theme', theme);
         }
 
-        // Load saved theme preference
-        function loadThemePreference() {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            document.getElementById('darkModeToggle').checked = savedTheme === 'dark';
+        // Dark mode toggle with error handling and revert on failure
+        async function toggleDarkMode() {
+            const checkbox = document.getElementById('darkModeToggle');
+            const newTheme = checkbox.checked ? 'dark' : 'light';
+            const oldTheme = localStorage.getItem('theme') || 'light';
+            
+            try {
+                const response = await fetch('/theme/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ theme: newTheme })
+                });
+                
+                if (response.ok) {
+                    applyTheme(newTheme);
+                } else {
+                    console.error('Failed to update theme preference');
+                    checkbox.checked = !checkbox.checked;
+                    applyTheme(oldTheme);
+                }
+            } catch (error) {
+                console.error('Error updating theme:', error);
+                checkbox.checked = !checkbox.checked;
+                applyTheme(oldTheme);
+            }
         }
 
-        // Settings modal functionality
+        // Load theme preference with fallback
+        async function loadThemePreference() {
+            try {
+                const response = await fetch('/theme/settings');
+                const data = await response.json();
+                applyTheme(data.theme || 'light');
+            } catch (error) {
+                console.error('Error loading theme:', error);
+                applyTheme(localStorage.getItem('theme') || 'light');
+            }
+        }
+
+        // Modal management
         function openSettings() {
             document.getElementById('settingsModal').classList.add('active');
+            loadThemePreference(); // Sync theme state
         }
 
         function closeSettings() {
@@ -215,13 +268,16 @@
 
         // Close modal when clicking outside
         document.getElementById('settingsModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeSettings();
-            }
+            if (e.target === this) closeSettings();
         });
 
-        // Initialize
+        // Initialize theme
         loadThemePreference();
+
+        // Keep theme in sync across tabs
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) loadThemePreference();
+        });
     </script>
 </body>
 </html>
