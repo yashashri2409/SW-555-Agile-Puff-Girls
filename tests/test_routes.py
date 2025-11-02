@@ -1,3 +1,6 @@
+import json
+from datetime import datetime
+
 import pytest
 
 from app import db, otp_store
@@ -572,52 +575,82 @@ def test_paused_habit_independent_of_archive(logged_in_client, app):
     assert "BothPausedArchived999" not in html
 
 
-# === Theme Tests ===
 
 
-def test_theme_toggle_endpoint_exists(client):
-    """Test that the theme toggle endpoint exists and returns 200."""
-    response = client.get("/theme/settings")
-    assert response.status_code == 200
+# === Toggle Completion Tests ===
 
+def test_toggle_completion_marks_habit_completed(logged_in_client, app):
+    """Test that POST /habit-tracker/toggle/<id> marks a habit as completed for today."""
+    # Arrange
+    with app.app_context():
+        habit = Habit(name="Morning Exercise", description="Daily workout")
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
 
-def test_theme_toggle_saves_preference(client):
-    """Test that toggling theme saves the preference."""
-    response = client.post("/theme/toggle", json={"theme": "dark"})
-    assert response.status_code == 200
-    assert response.json["success"] is True
-    assert response.json["theme"] == "dark"
+    # Act
+    response = logged_in_client.post(f"/habit-tracker/toggle/{habit_id}", follow_redirects=False)
 
-
-def test_theme_preference_persists(client):
-    """Test that theme preference is remembered between requests."""
-    # Set preference
-    client.post("/theme/toggle", json={"theme": "dark"})
-
-    # Check if preference is remembered
-    response = client.get("/theme/settings")
-    assert response.json["theme"] == "dark"
-
-
-def test_invalid_theme_handled(client):
-    """Test that invalid theme values are handled gracefully."""
-    response = client.post("/theme/toggle", json={"theme": "invalid"})
-    assert response.status_code == 400
-    assert "error" in response.json
-
-
-def test_theme_preference_for_authenticated_user(logged_in_client, app):
-    """Test that theme preference is stored in database for authenticated users."""
-    response = logged_in_client.post("/theme/toggle", json={"theme": "dark"})
-    assert response.status_code == 200
-    assert response.json["success"] is True
+    # Assert
+    assert response.status_code == 302
+    assert response.location == "/habit-tracker"
 
     with app.app_context():
-        from models import ThemePreference
-        pref = ThemePreference.query.filter_by(id="test@example.com").first()
-        assert pref is not None
-        assert pref.preference == "dark"
+        updated_habit = Habit.query.get(habit_id)
+        completed_dates = json.loads(updated_habit.completed_dates)
+        today = datetime.utcnow().date().isoformat()
+        assert today in completed_dates
 
+
+def test_toggle_completion_removes_completed_date(logged_in_client, app):
+    """Test that toggling an already completed habit removes it from completed_dates."""
+    # Arrange: Create a habit that's already completed for today
+    today = datetime.utcnow().date().isoformat()
+    with app.app_context():
+        habit = Habit(
+            name="Evening Reading",
+            description="Read for 30 minutes",
+            completed_dates=json.dumps([today])
+        )
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    # Act: Toggle completion again
+    response = logged_in_client.post(f"/habit-tracker/toggle/{habit_id}", follow_redirects=False)
+
+    # Assert
+    assert response.status_code == 302
+    with app.app_context():
+        updated_habit = Habit.query.get(habit_id)
+        completed_dates = json.loads(updated_habit.completed_dates)
+        assert today not in completed_dates
+
+
+def test_toggle_completion_requires_auth(client, app):
+    """Test that toggling completion without authentication redirects to signin."""
+    # Arrange
+    with app.app_context():
+        habit = Habit(name="Test Habit")
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    # Act
+    response = client.post(f"/habit-tracker/toggle/{habit_id}", follow_redirects=False)
+
+    # Assert
+    assert response.status_code == 302
+    assert response.location == "/signin"
+
+
+def test_toggle_completion_invalid_id_returns_404(logged_in_client):
+    """Test that POST /habit-tracker/toggle/<invalid_id> returns 404."""
+    # Act
+    response = logged_in_client.post("/habit-tracker/toggle/99999", follow_redirects=False)
+
+    # Assert
+    assert response.status_code == 404
 
 # === Share Progress Tests ===
 
@@ -722,6 +755,52 @@ def test_share_progress_requires_authentication(client):
     assert response.location == '/signin'
 
 # === Parametrized Tests ===
+
+
+# === Theme Tests ===
+
+def test_theme_toggle_endpoint_exists(client):
+    """Test that the theme toggle endpoint exists and returns 200."""
+    response = client.get("/theme/settings")
+    assert response.status_code == 200
+
+
+def test_theme_toggle_saves_preference(client):
+    """Test that toggling theme saves the preference."""
+    response = client.post("/theme/toggle", json={"theme": "dark"})
+    assert response.status_code == 200
+    assert response.json["success"] is True
+    assert response.json["theme"] == "dark"
+
+
+def test_theme_preference_persists(client):
+    """Test that theme preference is remembered between requests."""
+    # First set the preference via the API
+    client.post("/theme/toggle", json={"theme": "dark"})
+
+    # Then get the settings
+    response = client.get("/theme/settings")
+    assert response.json["theme"] == "dark"
+
+
+def test_invalid_theme_handled(client):
+    """Test that invalid theme values are handled gracefully."""
+    response = client.post("/theme/toggle", json={"theme": "invalid"})
+    assert response.status_code == 400
+    assert "error" in response.json
+
+
+def test_theme_preference_for_authenticated_user(logged_in_client, app):
+    """Test that theme preference is stored in database for authenticated users."""
+    response = logged_in_client.post("/theme/toggle", json={"theme": "dark"})
+    assert response.status_code == 200
+    assert response.json["success"] is True
+
+    with app.app_context():
+        from models import ThemePreference
+        pref = ThemePreference.query.filter_by(id="test@example.com").first()
+        assert pref is not None
+        assert pref.preference == "dark"
 
 
 @pytest.mark.parametrize("endpoint", ["/habit-tracker", "/theme/settings"])

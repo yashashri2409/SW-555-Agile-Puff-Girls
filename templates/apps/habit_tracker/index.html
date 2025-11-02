@@ -22,14 +22,21 @@
         background-color: var(--bg-primary);
     }
 
-    [data-theme="dark"] .text-gray-900 {
+    [data-theme="dark"] .text-gray-900,
+    [data-theme="dark"] .modal-content .text-gray-900 {
         color: var(--text-primary);
     }
 
     [data-theme="dark"] .text-gray-600,
     [data-theme="dark"] .text-gray-500,
-    [data-theme="dark"] .text-gray-400 {
+    [data-theme="dark"] .text-gray-400,
+    [data-theme="dark"] .modal-content .text-gray-800 {
         color: var(--text-secondary);
+    }
+
+    [data-theme="dark"] #shareText {
+        color: var(--text-primary);
+        background: var(--bg-secondary);
     }
 
     [data-theme="dark"] .border-gray-100 {
@@ -79,13 +86,19 @@
     }
 
     .modal-content {
-        background: white;
+        background: var(--bg-primary, white);
         padding: 2rem;
         border-radius: 1rem;
         max-width: 500px;
         width: 90%;
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         animation: slideUp 0.3s ease-out;
+        border: 1px solid var(--border-color, #e5e7eb);
+    }
+
+    [data-theme="dark"] .bg-gradient-to-r.from-purple-50.to-indigo-50.rounded-lg {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
     }
 
     @keyframes slideUp {
@@ -341,7 +354,7 @@
     <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-2">
             <span class="text-xl">⏸️</span>
-            <h3 class="text-lg font-semibold text-gray-800">Paused Habits</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Paused Habits</h3>
             <span class="text-sm text-gray-500">({{ paused_habits|length }})</span>
         </div>
     </div>
@@ -410,7 +423,7 @@
     <div class="modal-content">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-2xl font-bold text-gray-900">🎯 Share Your Progress</h3>
-            <button onclick="closeShareModal()" class="text-gray-400 hover:text-gray-600">
+            <button onclick="closeShareModal()" class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
