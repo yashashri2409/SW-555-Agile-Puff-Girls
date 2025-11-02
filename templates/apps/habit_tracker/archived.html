@@ -7,6 +7,51 @@
     .habit-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
+
+    [data-theme="dark"] .text-gray-900 {
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .text-gray-700,
+    [data-theme="dark"] .text-gray-600,
+    [data-theme="dark"] .text-gray-500,
+    [data-theme="dark"] .text-gray-400 {
+        color: var(--text-secondary);
+    }
+
+    [data-theme="dark"] .bg-white {
+        background-color: var(--bg-primary);
+    }
+
+    [data-theme="dark"] .border-gray-100,
+    [data-theme="dark"] .border-gray-200 {
+        border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .bg-gray-50,
+    [data-theme="dark"] .bg-gray-100 {
+        background-color: var(--bg-secondary);
+    }
+
+    [data-theme="dark"] .group:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+    }
+
+    [data-theme="dark"] .bg-gray-200 {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    [data-theme="dark"] .hover\:bg-gray-100:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    [data-theme="dark"] .hover\:bg-red-50:hover {
+        background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    [data-theme="dark"] .hover\:bg-green-50:hover {
+        background-color: rgba(34, 197, 94, 0.1);
+    }
 </style>
 {% endblock %}
 

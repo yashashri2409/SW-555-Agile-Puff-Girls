@@ -21,9 +21,14 @@
     [data-theme="dark"] .bg-white {
         background-color: var(--bg-primary);
     }
+    
+    [data-theme="dark"] .border-gray-100 {
+        border-color: var(--border-color);
+    }
 
     [data-theme="dark"] .text-gray-900,
-    [data-theme="dark"] .modal-content .text-gray-900 {
+    [data-theme="dark"] .modal-content .text-gray-900,
+    [data-theme="dark"] .text-gray-700 {
         color: var(--text-primary);
     }
 
@@ -31,6 +36,11 @@
     [data-theme="dark"] .text-gray-500,
     [data-theme="dark"] .text-gray-400,
     [data-theme="dark"] .modal-content .text-gray-800 {
+        color: var(--text-secondary);
+    }
+
+    [data-theme="dark"] .text-xs.text-gray-500.bg-white {
+        background-color: var(--bg-secondary);
         color: var(--text-secondary);
     }
 
@@ -59,6 +69,32 @@
     [data-theme="dark"] .text-xs.text-gray-500.bg-gray-100 {
         background-color: var(--bg-secondary);
         color: var(--text-secondary);
+    }
+
+    /* Dark mode styles for paused habits */
+    [data-theme="dark"] .text-gray-700 {
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .bg-yellow-50 {
+        background-color: rgba(250, 204, 21, 0.1);
+    }
+
+    [data-theme="dark"] .bg-yellow-200 {
+        background-color: rgba(250, 204, 21, 0.3);
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .text-yellow-800 {
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .border-yellow-100 {
+        border-color: rgba(250, 204, 21, 0.2);
+    }
+
+    [data-theme="dark"] .border-yellow-300 {
+        border-color: rgba(250, 204, 21, 0.3);
     }
     
     .modal {
@@ -361,7 +397,7 @@
 
     <div class="space-y-3">
         {% for habit in paused_habits %}
-        <div class="group p-4 rounded-lg border border-yellow-100 bg-yellow-50 hover:border-yellow-200 hover:bg-yellow-100 transition-all duration-200">
+        <div class="group p-4 rounded-lg border border-yellow-100 bg-yellow-50 hover:border-yellow-200 hover:bg-yellow-100 dark:border-yellow-900 dark:bg-yellow-900/20 dark:hover:bg-yellow-900/30 transition-all duration-200">
             <div class="flex items-start justify-between mb-2">
                 <div class="flex items-center gap-2 flex-1">
                     <span class="text-yellow-600">⏸</span>
