@@ -4,10 +4,98 @@
 
 {% block extra_head %}
 <style>
-    .habit-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Dark mode adaptations */
+    [data-theme="dark"] select,
+    [data-theme="dark"] input,
+    [data-theme="dark"] textarea {
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        border-color: var(--border-color);
+    }
+    
+    [data-theme="dark"] select option {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
     }
 
+    [data-theme="dark"] .bg-white {
+        background-color: var(--bg-primary);
+    }
+    
+    [data-theme="dark"] .border-gray-100 {
+        border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .text-gray-900,
+    [data-theme="dark"] .modal-content .text-gray-900,
+    [data-theme="dark"] .text-gray-700 {
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .text-gray-600,
+    [data-theme="dark"] .text-gray-500,
+    [data-theme="dark"] .text-gray-400,
+    [data-theme="dark"] .modal-content .text-gray-800 {
+        color: var(--text-secondary);
+    }
+
+    [data-theme="dark"] .text-xs.text-gray-500.bg-white {
+        background-color: var(--bg-secondary);
+        color: var(--text-secondary);
+    }
+
+    [data-theme="dark"] #shareText {
+        color: var(--text-primary);
+        background: var(--bg-secondary);
+    }
+
+    [data-theme="dark"] .border-gray-100 {
+        border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .hover\:border-purple-200:hover {
+        border-color: rgba(167, 139, 250, 0.3);
+    }
+
+    [data-theme="dark"] .hover\:bg-gradient-to-r:hover {
+        background: var(--bg-secondary);
+    }
+
+    [data-theme="dark"] .bg-gradient-to-r.from-purple-50.to-indigo-50 {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
+    }
+
+    [data-theme="dark"] .text-xs.text-gray-500.bg-gray-100 {
+        background-color: var(--bg-secondary);
+        color: var(--text-secondary);
+    }
+
+    /* Dark mode styles for paused habits */
+    [data-theme="dark"] .text-gray-700 {
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .bg-yellow-50 {
+        background-color: rgba(250, 204, 21, 0.1);
+    }
+
+    [data-theme="dark"] .bg-yellow-200 {
+        background-color: rgba(250, 204, 21, 0.3);
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .text-yellow-800 {
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .border-yellow-100 {
+        border-color: rgba(250, 204, 21, 0.2);
+    }
+
+    [data-theme="dark"] .border-yellow-300 {
+        border-color: rgba(250, 204, 21, 0.3);
+    }
     
     .modal {
         display: none;
@@ -34,13 +122,19 @@
     }
 
     .modal-content {
-        background: white;
+        background: var(--bg-primary, white);
         padding: 2rem;
         border-radius: 1rem;
         max-width: 500px;
         width: 90%;
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         animation: slideUp 0.3s ease-out;
+        border: 1px solid var(--border-color, #e5e7eb);
+    }
+
+    [data-theme="dark"] .bg-gradient-to-r.from-purple-50.to-indigo-50.rounded-lg {
+        background: var(--bg-secondary);
+        border-color: var(--border-color);
     }
 
     @keyframes slideUp {
@@ -173,8 +267,16 @@
                 <div class="group p-4 rounded-lg border border-gray-100 hover:border-purple-200 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 transition-all duration-200">
                     <div class="flex items-start justify-between mb-2">
                         <div class="flex items-center gap-2 flex-1">
-                            <span class="text-purple-600">✓</span>
-                            
+                            <form method="POST" action="/habit-tracker/toggle/{{ habit.id }}" class="inline">
+                                <button type="submit" class="text-purple-600 hover:text-purple-800 transition-colors">
+                                    {% set today = habit.completed_dates|default('[]')|from_json %}
+                                    {% if today|string in today %}
+                                        <span class="text-2xl">✓</span>
+                                    {% else %}
+                                        <span class="text-2xl opacity-30">○</span>
+                                    {% endif %}
+                                </button>
+                            </form>
                             <span class="font-medium text-gray-900 group-hover:text-purple-700 habit-name-display-{{ habit.id }}">{{ habit.name }}</span>
                             <form method="POST" action="/habit-tracker/update/{{ habit.id }}" class="hidden habit-edit-form-{{ habit.id }} flex-1">
                                 <input type="text" name="name" value="{{ habit.name }}"
@@ -254,19 +356,18 @@
                         </p>
                     {% endif %}
                     <div class="flex gap-3 ml-6">
+                        {% if habit.category %}
+                            <span class="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-100 px-3 py-1 rounded-full">
+                            {{ habit.category }}
+                            </span>
+                        {% endif %}
 
-                    {% if habit.category %}
-                        <span class="inline-flex items-center text-xs font-medium text-purple-700 bg-purple-100 px-3 py-1 rounded-full">
-                        {{ habit.category }}
+                        <span class="inline-flex items-center gap-1 text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full">
+                            🔥 0 day streak
                         </span>
-                    {% endif %}
-
-                    <span class="inline-flex items-center gap-1 text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 py-1 rounded-full">
-                        🔥 0 day streak
-                    </span>
-                    <span class="inline-flex items-center text-xs font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full">
-                        0% this week
-                    </span>
+                        <span class="inline-flex items-center text-xs font-medium text-green-700 bg-green-100 px-3 py-1 rounded-full">
+                            0% this week
+                        </span>
                     </div>
                 </div>
                 {% endfor %}
@@ -289,14 +390,14 @@
     <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-2">
             <span class="text-xl">⏸️</span>
-            <h3 class="text-lg font-semibold text-gray-800">Paused Habits</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Paused Habits</h3>
             <span class="text-sm text-gray-500">({{ paused_habits|length }})</span>
         </div>
     </div>
 
     <div class="space-y-3">
         {% for habit in paused_habits %}
-        <div class="group p-4 rounded-lg border border-yellow-100 bg-yellow-50 hover:border-yellow-200 hover:bg-yellow-100 transition-all duration-200">
+        <div class="group p-4 rounded-lg border border-yellow-100 bg-yellow-50 hover:border-yellow-200 hover:bg-yellow-100 dark:border-yellow-900 dark:bg-yellow-900/20 dark:hover:bg-yellow-900/30 transition-all duration-200">
             <div class="flex items-start justify-between mb-2">
                 <div class="flex items-center gap-2 flex-1">
                     <span class="text-yellow-600">⏸</span>
@@ -358,7 +459,7 @@
     <div class="modal-content">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-2xl font-bold text-gray-900">🎯 Share Your Progress</h3>
-            <button onclick="closeShareModal()" class="text-gray-400 hover:text-gray-600">
+            <button onclick="closeShareModal()" class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>

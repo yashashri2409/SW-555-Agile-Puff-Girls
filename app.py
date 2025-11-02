@@ -1,3 +1,4 @@
+import json
 import os
 import random
 from datetime import datetime, timezone
@@ -13,6 +14,22 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///app.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
+
+# Add custom Jinja filters
+@app.template_filter('from_json')
+def from_json_filter(value):
+    if value is None:
+        return []
+    try:
+        return json.loads(value)
+    except json.JSONDecodeError:
+        return []
+
+from routes.habits import habits_bp  # noqa: E402
+from routes.theme import theme_bp  # noqa: E402
+
+app.register_blueprint(theme_bp)
+app.register_blueprint(habits_bp)
 
 # Store OTPs temporarily
 otp_store = {}
