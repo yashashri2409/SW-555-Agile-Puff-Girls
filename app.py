@@ -18,6 +18,8 @@ db.init_app(app)
 # Add custom Jinja filters
 @app.template_filter('from_json')
 def from_json_filter(value):
+    if value is None:
+        return []
     try:
         return json.loads(value)
     except json.JSONDecodeError:
