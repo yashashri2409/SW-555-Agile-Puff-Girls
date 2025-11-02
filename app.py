@@ -78,16 +78,16 @@ def habit_tracker():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         description = request.form.get("description", "").strip()
-        category = request.form.get("category", "").strip()
+        category = request.form.get('category', '').strip()
 
-        if category == "other":
-            category = request.form.get("category_custom", "").strip()
+        if category == 'other':
+            category = request.form.get('category_custom', '').strip()
 
         if name:
             habit = Habit(
                 name=name,
                 description=description or None,
-                category=(category or None),  # safe if empty
+                category=(category or None),
             )
             db.session.add(habit)
             db.session.commit()
@@ -216,7 +216,6 @@ def archived_habits():
     )
 
 
-# test change
 @app.route("/logout")
 def logout():
     session.clear()
