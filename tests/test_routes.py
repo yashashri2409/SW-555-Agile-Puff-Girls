@@ -1,6 +1,6 @@
 import pytest
 
-from app import otp_store
+from app import db, otp_store
 from models import Habit
 
 # === Habit Tracker Tests ===
@@ -167,14 +167,103 @@ def test_habit_tracker_delete_invalid_id_returns_404(client):
     assert response.status_code == 404
 
 
+# === Update Habit Tests ===
+
+
+def test_habit_tracker_update_changes_name(logged_in_client, app):
+    """Test that POST /habit-tracker/update/<id> updates the habit name."""
+    # Arrange
+    with app.app_context():
+        habit = Habit(name="Old Habit Name", description="Test description")
+        from extensions import db
+
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    # Act
+    response = logged_in_client.post(
+        f"/habit-tracker/update/{habit_id}",
+        data={"name": "Updated Habit Name"},
+        follow_redirects=False,
+    )
+
+    # Assert
+    assert response.status_code == 302
+    assert response.location == "/habit-tracker"
+    with app.app_context():
+        updated_habit = Habit.query.filter_by(id=habit_id).first()
+        assert updated_habit is not None
+        assert updated_habit.name == "Updated Habit Name"
+        assert updated_habit.description == "Test description"
+
+
+def test_habit_tracker_update_requires_auth(client, app):
+    """Test that update requires authentication."""
+    # Arrange
+    with app.app_context():
+        habit = Habit(name="Test Habit")
+        from extensions import db
+
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    # Act
+    response = client.post(
+        f"/habit-tracker/update/{habit_id}",
+        data={"name": "New Name"},
+        follow_redirects=False,
+    )
+
+    # Assert
+    assert response.status_code == 302
+    assert response.location == "/signin"
+
+
+def test_habit_tracker_update_invalid_id_returns_404(logged_in_client):
+    """Test that POST /habit-tracker/update/<invalid_id> returns 404."""
+    # Act
+    response = logged_in_client.post(
+        "/habit-tracker/update/99999",
+        data={"name": "New Name"},
+        follow_redirects=False,
+    )
+
+    # Assert
+    assert response.status_code == 404
+
+
+def test_habit_tracker_update_empty_name_does_not_update(logged_in_client, app):
+    """Test that submitting empty name does not update the habit."""
+    # Arrange
+    with app.app_context():
+        habit = Habit(name="Original Name")
+        from extensions import db
+
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    # Act
+    response = logged_in_client.post(
+        f"/habit-tracker/update/{habit_id}",
+        data={"name": "   "},
+        follow_redirects=False,
+    )
+
+    # Assert
+    assert response.status_code == 302
+    with app.app_context():
+        habit = Habit.query.filter_by(id=habit_id).first()
+        assert habit.name == "Original Name"
+
+
+# === Category Tests ===
 
 def test_habit_tracker_post_saves_predefined_category(logged_in_client, app):
     """Selecting a predefined category stores it on the Habit."""
-    form = {
-        "name": "Read 10 pages",
-        "description": "Night routine",
-        "category": "Fitness"  # one of the predefined categories
-    }
+    form = {"name": "Read 10 pages", "description": "Night routine", "category": "Fitness"}
     resp = logged_in_client.post("/habit-tracker", data=form, follow_redirects=False)
     assert resp.status_code == 302 and resp.location == "/habit-tracker"
 
@@ -203,12 +292,7 @@ def test_habit_tracker_post_uses_category_custom_when_other_selected(logged_in_c
 
 def test_habit_dashboard_displays_category(logged_in_client, app):
     """After creating a habit with a category, the /habit-tracker page shows that category text."""
-    # Create a habit with a category
-    form = {
-        "name": "Meditation",
-        "description": "Mindful breathing",
-        "category": "Mindfulness"
-    }
+    form = {"name": "Meditation", "description": "Mindful breathing", "category": "Mindfulness"}
     create_resp = logged_in_client.post("/habit-tracker", data=form, follow_redirects=False)
     assert create_resp.status_code == 302
 
@@ -219,21 +303,21 @@ def test_habit_dashboard_displays_category(logged_in_client, app):
     assert "Mindfulness" in html
 
 
-
 def test_archive_habit_success(logged_in_client, app):
     """Test that POST /habit-tracker/archive/<id> archives a habit successfully."""
     with app.app_context():
-        habit = Habit(name='Morning Yoga', description='Daily yoga routine', is_archived=False)
+        habit = Habit(name="Morning Yoga", description="Daily yoga routine", is_archived=False)
         from extensions import db
+
         db.session.add(habit)
         db.session.commit()
         habit_id = habit.id
-    
-    response = logged_in_client.post(f'/habit-tracker/archive/{habit_id}', follow_redirects=False)
-    
+
+    response = logged_in_client.post(f"/habit-tracker/archive/{habit_id}", follow_redirects=False)
+
     assert response.status_code == 302
-    assert response.location == '/habit-tracker'
-    
+    assert response.location == "/habit-tracker"
+
     with app.app_context():
         archived_habit = Habit.query.filter_by(id=habit_id).first()
         assert archived_habit is not None
@@ -243,14 +327,14 @@ def test_archive_habit_success(logged_in_client, app):
 
 def test_archive_habit_requires_auth(client):
     """Test that archiving a habit without authentication redirects to signin."""
-    response = client.post('/habit-tracker/archive/1', follow_redirects=False)
+    response = client.post("/habit-tracker/archive/1", follow_redirects=False)
     assert response.status_code == 302
-    assert response.location == '/signin'
+    assert response.location == "/signin"
 
 
 def test_archive_habit_invalid_id_returns_404(logged_in_client):
     """Test that POST /habit-tracker/archive/<invalid_id> returns 404."""
-    response = logged_in_client.post('/habit-tracker/archive/99999', follow_redirects=False)
+    response = logged_in_client.post("/habit-tracker/archive/99999", follow_redirects=False)
     assert response.status_code == 404
 
 
@@ -258,21 +342,23 @@ def test_unarchive_habit_success(logged_in_client, app):
     """Test that POST /habit-tracker/unarchive/<id> unarchives a habit successfully."""
     with app.app_context():
         from datetime import datetime, timezone
+
         habit = Habit(
-            name='Evening Walk',
-            description='30 min walk',
+            name="Evening Walk",
+            description="30 min walk",
             is_archived=True,
-            archived_at=datetime.now(timezone.utc)
+            archived_at=datetime.now(timezone.utc),
         )
         from extensions import db
+
         db.session.add(habit)
         db.session.commit()
         habit_id = habit.id
-    
-    response = logged_in_client.post(f'/habit-tracker/unarchive/{habit_id}', follow_redirects=False)
-    
+
+    response = logged_in_client.post(f"/habit-tracker/unarchive/{habit_id}", follow_redirects=False)
+
     assert response.status_code == 302
-    
+
     with app.app_context():
         unarchived_habit = Habit.query.filter_by(id=habit_id).first()
         assert unarchived_habit is not None
@@ -282,53 +368,210 @@ def test_unarchive_habit_success(logged_in_client, app):
 
 def test_unarchive_habit_requires_auth(client):
     """Test that unarchiving a habit without authentication redirects to signin."""
-    response = client.post('/habit-tracker/unarchive/1', follow_redirects=False)
+    response = client.post("/habit-tracker/unarchive/1", follow_redirects=False)
     assert response.status_code == 302
-    assert response.location == '/signin'
+    assert response.location == "/signin"
 
 
 def test_unarchive_habit_invalid_id_returns_404(logged_in_client):
     """Test that POST /habit-tracker/unarchive/<invalid_id> returns 404."""
-    response = logged_in_client.post('/habit-tracker/unarchive/99999', follow_redirects=False)
+    response = logged_in_client.post("/habit-tracker/unarchive/99999", follow_redirects=False)
     assert response.status_code == 404
 
 
 def test_archived_habits_page_get_returns_ok(logged_in_client):
     """Test that GET /habit-tracker/archived returns a 200 status code when authenticated."""
-    response = logged_in_client.get('/habit-tracker/archived')
+    response = logged_in_client.get("/habit-tracker/archived")
     assert response.status_code == 200
 
 
 def test_archived_habits_page_requires_auth(client):
     """Test that accessing archived habits page without authentication redirects to signin."""
-    response = client.get('/habit-tracker/archived', follow_redirects=False)
+    response = client.get("/habit-tracker/archived", follow_redirects=False)
     assert response.status_code == 302
-    assert response.location == '/signin'
+    assert response.location == "/signin"
 
 
 def test_archived_habits_page_shows_only_archived(logged_in_client, app):
     """Test that /habit-tracker/archived page only displays archived habits."""
     with app.app_context():
         from datetime import datetime, timezone
+
         from extensions import db
-        
-        active_habit = Habit(name='My Active Habit Item', description='Not archived', is_archived=False)
+
+        active_habit = Habit(
+            name="My Active Habit Item", description="Not archived", is_archived=False
+        )
         archived_habit = Habit(
-            name='My Archived Habit Item',
-            description='This is archived',
+            name="My Archived Habit Item",
+            description="This is archived",
             is_archived=True,
-            archived_at=datetime.now(timezone.utc)
+            archived_at=datetime.now(timezone.utc),
         )
         db.session.add(active_habit)
         db.session.add(archived_habit)
         db.session.commit()
-    
-    response = logged_in_client.get('/habit-tracker/archived')
-    html = response.data.decode('utf-8')
-    
+
+    response = logged_in_client.get("/habit-tracker/archived")
+    html = response.data.decode("utf-8")
+
     assert response.status_code == 200
-    assert 'My Archived Habit Item' in html
-    assert 'My Active Habit Item' not in html
+    assert "My Archived Habit Item" in html
+    assert "My Active Habit Item" not in html
+
+
+# === Pause/Resume Tests ===
+
+
+def test_pause_habit_success(logged_in_client, app):
+    """Test that POST /habit-tracker/pause/<id> pauses a habit successfully."""
+    with app.app_context():
+        habit = Habit(name="My Active Habit", description="Test habit")
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    response = logged_in_client.post(f"/habit-tracker/pause/{habit_id}", follow_redirects=False)
+
+    assert response.status_code == 302
+    assert response.location == "/habit-tracker"
+
+    with app.app_context():
+        paused_habit = Habit.query.filter_by(id=habit_id).first()
+        assert paused_habit is not None
+        assert paused_habit.is_paused is True
+        assert paused_habit.paused_at is not None
+
+
+def test_pause_habit_requires_auth(client, app):
+    """Test that pause requires authentication."""
+    with app.app_context():
+        habit = Habit(name="Test Habit")
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    response = client.post(f"/habit-tracker/pause/{habit_id}", follow_redirects=False)
+
+    assert response.status_code == 302
+    assert "/signin" in response.location
+
+
+def test_pause_habit_invalid_id_returns_404(logged_in_client):
+    """Test that POST /habit-tracker/pause/<invalid_id> returns 404."""
+    response = logged_in_client.post("/habit-tracker/pause/99999")
+    assert response.status_code == 404
+
+
+def test_resume_habit_success(logged_in_client, app):
+    """Test that POST /habit-tracker/resume/<id> resumes a paused habit successfully."""
+    from datetime import datetime, timezone
+
+    with app.app_context():
+        habit = Habit(
+            name="My Paused Habit",
+            description="Test habit",
+            is_paused=True,
+            paused_at=datetime.now(timezone.utc),
+        )
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    response = logged_in_client.post(f"/habit-tracker/resume/{habit_id}", follow_redirects=False)
+
+    assert response.status_code == 302
+
+    with app.app_context():
+        resumed_habit = Habit.query.filter_by(id=habit_id).first()
+        assert resumed_habit is not None
+        assert resumed_habit.is_paused is False
+        assert resumed_habit.paused_at is None
+
+
+def test_resume_habit_requires_auth(client, app):
+    """Test that resume requires authentication."""
+    from datetime import datetime, timezone
+
+    with app.app_context():
+        habit = Habit(name="Test Habit", is_paused=True, paused_at=datetime.now(timezone.utc))
+        db.session.add(habit)
+        db.session.commit()
+        habit_id = habit.id
+
+    response = client.post(f"/habit-tracker/resume/{habit_id}", follow_redirects=False)
+
+    assert response.status_code == 302
+    assert "/signin" in response.location
+
+
+def test_resume_habit_invalid_id_returns_404(logged_in_client):
+    """Test that POST /habit-tracker/resume/<invalid_id> returns 404."""
+    response = logged_in_client.post("/habit-tracker/resume/99999")
+    assert response.status_code == 404
+
+
+def test_habit_tracker_shows_paused_habits_separately(logged_in_client, app):
+    """Test that habit tracker page displays paused habits in separate section."""
+    from datetime import datetime, timezone
+
+    with app.app_context():
+        active_habit = Habit(name="Active Habit", is_paused=False)
+        paused_habit = Habit(
+            name="Paused Habit", is_paused=True, paused_at=datetime.now(timezone.utc)
+        )
+        db.session.add(active_habit)
+        db.session.add(paused_habit)
+        db.session.commit()
+
+    response = logged_in_client.get("/habit-tracker")
+    html = response.data.decode("utf-8")
+
+    assert response.status_code == 200
+    assert "Active Habit" in html
+    assert "Paused Habit" in html
+    assert "Paused Habits" in html
+
+
+def test_paused_habit_independent_of_archive(logged_in_client, app):
+    """Test that paused and archived habits are independent."""
+    from datetime import datetime, timezone
+
+    with app.app_context():
+        active_habit = Habit(name="ActiveHabit123", is_paused=False, is_archived=False)
+        paused_habit = Habit(
+            name="PausedHabit456",
+            is_paused=True,
+            is_archived=False,
+            paused_at=datetime.now(timezone.utc),
+        )
+        archived_habit = Habit(
+            name="ArchivedHabit789",
+            is_paused=False,
+            is_archived=True,
+            archived_at=datetime.now(timezone.utc),
+        )
+        paused_and_archived = Habit(
+            name="BothPausedArchived999",
+            is_paused=True,
+            is_archived=True,
+            paused_at=datetime.now(timezone.utc),
+            archived_at=datetime.now(timezone.utc),
+        )
+        db.session.add_all([active_habit, paused_habit, archived_habit, paused_and_archived])
+        db.session.commit()
+
+    response = logged_in_client.get("/habit-tracker")
+    html = response.data.decode("utf-8")
+
+    assert response.status_code == 200
+    # Active habits section should show only active
+    assert "ActiveHabit123" in html
+    # Paused habits section should show only paused (not archived)
+    assert "PausedHabit456" in html
+    # Archived and paused+archived should not be on main page
+    assert "ArchivedHabit789" not in html
+    assert "BothPausedArchived999" not in html
 
 
 # === Parametrized Tests ===
