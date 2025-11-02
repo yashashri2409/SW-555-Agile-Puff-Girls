@@ -1,6 +1,6 @@
 import os
 import random
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import Flask, jsonify, redirect, render_template, request, session, url_for
 
@@ -87,7 +87,7 @@ def habit_tracker():
             habit = Habit(
                 name=name,
                 description=description or None,
-                category=(category or None),  # safe if empty
+                category=(category or None),
             )
             db.session.add(habit)
             db.session.commit()
@@ -211,15 +211,11 @@ def archived_habits():
         return redirect(url_for("signin"))
 
     habits = Habit.query.filter_by(is_archived=True).order_by(Habit.archived_at.desc()).all()
-    return render_template("apps/habit_tracker/archived.html", page_id="habit-tracker", habits=habits)
-
-    habits = Habit.query.filter_by(is_archived=True).order_by(Habit.archived_at.desc()).all()
     return render_template(
         "apps/habit_tracker/archived.html", page_id="habit-tracker", habits=habits
     )
 
 
-# test change
 @app.route("/logout")
 def logout():
     session.clear()
