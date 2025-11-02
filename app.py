@@ -168,7 +168,7 @@ def archive_habit(habit_id):
         return "Habit not found", 404
 
     habit.is_archived = True
-    habit.archived_at = datetime.utcnow()
+    habit.archived_at = datetime.now(timezone.utc)
     db.session.commit()
     return redirect(url_for("habit_tracker"))
 
