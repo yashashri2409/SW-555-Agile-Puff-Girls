@@ -228,12 +228,12 @@ def test_archive_habit_success(logged_in_client, app):
         db.session.add(habit)
         db.session.commit()
         habit_id = habit.id
-    
+
     response = logged_in_client.post(f'/habit-tracker/archive/{habit_id}', follow_redirects=False)
-    
+
     assert response.status_code == 302
     assert response.location == '/habit-tracker'
-    
+
     with app.app_context():
         archived_habit = Habit.query.filter_by(id=habit_id).first()
         assert archived_habit is not None
@@ -268,11 +268,11 @@ def test_unarchive_habit_success(logged_in_client, app):
         db.session.add(habit)
         db.session.commit()
         habit_id = habit.id
-    
+
     response = logged_in_client.post(f'/habit-tracker/unarchive/{habit_id}', follow_redirects=False)
-    
+
     assert response.status_code == 302
-    
+
     with app.app_context():
         unarchived_habit = Habit.query.filter_by(id=habit_id).first()
         assert unarchived_habit is not None
@@ -310,8 +310,9 @@ def test_archived_habits_page_shows_only_archived(logged_in_client, app):
     """Test that /habit-tracker/archived page only displays archived habits."""
     with app.app_context():
         from datetime import datetime, timezone
+
         from extensions import db
-        
+
         active_habit = Habit(name='My Active Habit Item', description='Not archived', is_archived=False)
         archived_habit = Habit(
             name='My Archived Habit Item',
@@ -322,10 +323,10 @@ def test_archived_habits_page_shows_only_archived(logged_in_client, app):
         db.session.add(active_habit)
         db.session.add(archived_habit)
         db.session.commit()
-    
+
     response = logged_in_client.get('/habit-tracker/archived')
     html = response.data.decode('utf-8')
-    
+
     assert response.status_code == 200
     assert 'My Archived Habit Item' in html
     assert 'My Active Habit Item' not in html
@@ -340,11 +341,11 @@ def test_share_progress_button_visible_with_habits(logged_in_client, app):
         habit = Habit(name='Morning Run', description='Daily run')
         db.session.add(habit)
         db.session.commit()
-    
+
     # Act: Load habit tracker page
     response = logged_in_client.get('/habit-tracker')
     html = response.data.decode('utf-8')
-    
+
     # Assert: Share Progress button is visible
     assert response.status_code == 200
     assert 'Share Progress' in html
@@ -356,7 +357,7 @@ def test_share_progress_button_hidden_without_habits(logged_in_client):
     # Act: Load habit tracker page with no habits
     response = logged_in_client.get('/habit-tracker')
     html = response.data.decode('utf-8')
-    
+
     # Assert: Share Progress button should not be visible
     assert response.status_code == 200
     # Button should be hidden when there are no habits
@@ -371,11 +372,11 @@ def test_share_modal_html_structure(logged_in_client, app):
         habit = Habit(name='Study', description='Daily study session')
         db.session.add(habit)
         db.session.commit()
-    
+
     # Act: Load page
     response = logged_in_client.get('/habit-tracker')
     html = response.data.decode('utf-8')
-    
+
     # Assert: Modal elements exist
     assert 'id="shareModal"' in html
     assert 'Share Your Progress' in html
@@ -390,11 +391,11 @@ def test_share_progress_javascript_functions_present(logged_in_client, app):
         habit = Habit(name='Workout', description='Gym session')
         db.session.add(habit)
         db.session.commit()
-    
+
     # Act: Load page
     response = logged_in_client.get('/habit-tracker')
     html = response.data.decode('utf-8')
-    
+
     # Assert: JavaScript functions exist
     assert 'function openShareModal()' in html
     assert 'function closeShareModal()' in html
@@ -412,11 +413,11 @@ def test_share_text_generation_with_multiple_habits(logged_in_client, app):
         habit3 = Habit(name='Meditation', description='10 min meditation')
         db.session.add_all([habit1, habit2, habit3])
         db.session.commit()
-    
+
     # Act: Load page
     response = logged_in_client.get('/habit-tracker')
     html = response.data.decode('utf-8')
-    
+
     # Assert: Page loads and can generate text with correct count
     assert response.status_code == 200
     assert 'Active Habits:' in html or '3 habit' in html
@@ -426,7 +427,7 @@ def test_share_progress_requires_authentication(client):
     """Test that share progress feature requires authentication."""
     # Act: Try to access habit tracker without login
     response = client.get('/habit-tracker', follow_redirects=False)
-    
+
     # Assert: Redirects to signin
     assert response.status_code == 302
     assert response.location == '/signin'
