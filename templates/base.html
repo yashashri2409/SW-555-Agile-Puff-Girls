@@ -30,17 +30,6 @@
             --border-color: #374151;
             --modal-overlay: rgba(0, 0, 0, 0.7);
         }
-            --modal-overlay: rgba(0, 0, 0, 0.5);
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: #1f2937;
-            --bg-secondary: #111827;
-            --text-primary: #f9fafb;
-            --text-secondary: #d1d5db;
-            --border-color: #374151;
-            --modal-overlay: rgba(0, 0, 0, 0.7);
-        }
 
         body { 
             font-family: 'Inter', sans-serif;
@@ -153,7 +142,6 @@
 
         input:checked + .toggle-slider:before {
             transform: translateX(26px);
->>>>>>> fa4d157891cee11ad9bb729ff6e6094b96cb8256
         }
     </style>
     {% block extra_head %}{% endblock %}
@@ -194,7 +182,6 @@
         </div>
     </main>
 
-<<<<<<< HEAD
     <!-- Tips Modal -->
     <div id="tipsModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden" role="dialog" aria-modal="true" tabindex="0" aria-labelledby="tips-modal-title">
         <div class="min-h-screen px-4 text-center">
@@ -243,23 +230,23 @@
                             <p class="text-green-700 dark:text-green-200">Keep your streak going by completing your habits consistently.</p>
                         </div>
                     </div>
-                    <div class="relative bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30 p-4 rounded-lg overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-r from-yellow-500/10 to-transparent"></div>
+                    <div class="relative bg-gradient-to-r from-yellow-50 to-yellow-100 dark:from-yellow-900/40 dark:to-yellow-800/40 p-4 rounded-lg overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-yellow-500/20 dark:from-yellow-400/20 to-transparent"></div>
                         <div class="relative">
-                            <h4 class="text-lg font-semibold text-yellow-800 dark:text-yellow-300 mb-2 flex items-center gap-2">
-                                <span class="flex-shrink-0">4. Manage Your Habits</span>
+                            <h4 class="text-lg font-bold text-red-900 dark:text-yellow-300 mb-2 flex items-center gap-2">
+                                <span class="flex-shrink-0 tracking-wide">4. Manage Your Habits</span>
                                 <span class="text-2xl">⚙️</span>
                             </h4>
-                            <p class="text-yellow-700 dark:text-yellow-200">Need a break? Use pause/resume. Want to remove old habits? Archive them!</p>
+                            <p class="text-yellow-700 dark:text-yellow-100">Need a break? Use pause/resume. Want to remove old habits? Archive them!</p>
                             <div class="mt-4 flex gap-2 text-sm">
-                                <span class="inline-flex items-center px-2 py-1 rounded-full bg-yellow-200/50 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-200">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-yellow-100 dark:bg-yellow-600 text-yellow-800 dark:text-yellow-50 border border-yellow-200 dark:border-yellow-500 shadow-sm font-medium">
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     Pause
                                 </span>
-                                <span class="inline-flex items-center px-2 py-1 rounded-full bg-blue-200/50 dark:bg-blue-800/50 text-blue-800 dark:text-blue-200">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <span class="inline-flex items-center px-3 py-1.5 rounded-full bg-blue-100 dark:bg-blue-600 text-blue-800 dark:text-blue-50 border border-blue-200 dark:border-blue-500 shadow-sm font-medium">
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
                                     </svg>
                                     Archive
@@ -276,12 +263,12 @@
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" onclick="closeTipsModal()" 
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                        class="px-4 py-2 text-sm font-bold text-black dark:text-black bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:focus:ring-purple-400 shadow-sm border border-gray-300 dark:border-gray-600">
                         Got it!
                     </button>
                     <form action="{{ url_for('disable_tips') }}" method="POST" class="inline">
                         <button type="submit"
-                            class="px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 focus:outline-none focus:underline">
+                            class="px-4 py-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 focus:outline-none focus:underline">
                             Don't show again
                         </button>
                     </form>
@@ -290,10 +277,7 @@
         </div>
     </div>
 
-    <footer class="bg-white border-t border-gray-200 mt-auto">
-=======
-        <footer class="bg-theme-primary border-t border-theme mt-auto transition-colors duration-200"
->>>>>>> fa4d157891cee11ad9bb729ff6e6094b96cb8256
+    <footer class="bg-theme-primary border-t border-theme mt-auto transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <p class="text-theme-secondary text-sm">© 2025 Habit Tracker app</p>
